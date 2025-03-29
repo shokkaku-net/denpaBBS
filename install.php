@@ -167,7 +167,7 @@ function detectAndCreateLogDir(): string
 	global $errors;
 
 	$baseDir = realpath(__DIR__ . '/../');
-	$logDir = $baseDir . '/kotatsuLog/';
+	$logDir = $baseDir . '/bbslog/';
 
 	if (!file_exists($logDir)) {
 		if (!@mkdir($logDir, 0755, true)) {
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 			"System",
 			"",
 			"HelloWorld!",
-			'Thank you for installing kotatsuBBS!!<br> I have put in a lot of work to make this software be as fluent as possible.<br>Please consider following and leaving a star on my <a href="https://github.com/nashikouen/kotatsuBBS">repo</a>. It means a lot.',
+			'Thank you for installing DenpaBBS!!<br> I have put in a lot of work to make this software be as fluent as possible.<br>Please consider following and leaving a star on my <a href="https://github.com/shokkaku-net/denpaBBS">repo</a>. It means a lot.',
 			"",
 			$time,
 			"127.0.0.1",

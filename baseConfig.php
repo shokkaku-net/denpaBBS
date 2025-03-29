@@ -21,13 +21,13 @@ return [
     /*
      *  file object will be stored relitive to threads dir in the project.
      *  you should give the absolute path to the threads folder here.
-     *  openbsd guys are /htdocs/kotatsuBBS/threads/
+     *  openbsd guys are /htdocs/denpaBBS/threads/
      *  this gets changed from install.php
      */
-    'threadsDir' => '/var/www/html/kotatsuBBS/threads/',
+    'threadsDir' => '/var/www/html/denpaBBS/threads/',
     /* this is how long a log in session last for. (1 hour) */
     'sessionLifeTime' => 3600,
-    'memoryLimit' => '128M',    // the ammount of memeory kotatsu can use 
+    'memoryLimit' => '128M',    // the ammount of memeory denpaBBS can use 
     'webRootPath' => '/',       // the uri location where the software is found publicly
     'domain' => 'example.com',  // doamin of ur site, install will try to get this
 
@@ -50,7 +50,7 @@ return [
 
     /*
      * its best to keep logs just outside of the webroot.
-     * it will create a dir called kotatsuLog in the dir below and store its logs there.
+     * it will create a dir called bbsLog in the dir below and store its logs there.
      *      ^^(you might have to make it manualy and give webserver premistions to it)
      * if you are keeping it in the web root. make sure you hide the logs from web srever.
      */

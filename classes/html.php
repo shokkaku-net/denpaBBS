@@ -34,7 +34,7 @@ class htmlclass
     {
         global $AUTH;
         $this->html .= '
-        <!--drawHead() Hello!! If you are looking to modify this webapge. please check out kotatsu github and look in /classes/html.php-->
+        <!--drawHead() Hello!! If you are looking to modify this webapge. please check out DenpaBBS github and look in /classes/html.php-->
         <head>
             <!--tell browsers to use UTF-8-->
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -132,7 +132,7 @@ class htmlclass
     }
     private function drawFooter()
     {
-        $this->html .= '<br><br><br><center>- you are running <a rel="nofollow noreferrer license" href="https://github.com/nashikouen/KotatsuBBS/" target="_blank">KotatsuBBS</a>. a clear and easy to read image board software -</center>';
+        $this->html .= '<br><br><br><center>- you are running <a rel="nofollow noreferrer license" href="https://github.com/shokkaku-net/denpaBBS" target="_blank">DenpaBBS</a>. a clear and easy to read image board software -</center>';
     }
     private function postManagerWraper($drawFunc, $parameter)
     {

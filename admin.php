@@ -53,7 +53,7 @@ function goToRealboard()
     if ($AUTH->isSuper() && $noBoard) {
         $board = getFirstValidBoard();
         if (is_null($board)) {
-            drawErrorPageAndDie("something is seriously wrong. contact kotatsuBBS and report this");
+            drawErrorPageAndDie("something is seriously wrong. contact DenpaBBS and report this");
         }
         redirectToAdmin($board);
     } else {

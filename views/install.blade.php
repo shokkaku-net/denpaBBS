@@ -2,12 +2,12 @@
 <html>
 
 <head>
-    <title>KotatsuBBS Installer</title>
+    <title>DenpaBBS Installer</title>
     <link class="linkstyle" rel="stylesheet" type="text/css" href="/static/css/futaclone.css" title="defaultcss">
 </head>
 
 <body>
-    <h1>KotatsuBBS Installer</h1>
+    <h1>DenpaBBS Installer</h1>
     @if ($status === 'success')
         <div class="postblock">
             <h2>Installation Completed</h2>

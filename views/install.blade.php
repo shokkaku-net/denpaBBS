@@ -3,7 +3,8 @@
 
 <head>
     <title>DenpaBBS Installer</title>
-    <link class="linkstyle" rel="stylesheet" type="text/css" href="/static/css/futaclone.css" title="defaultcss">
+    <link class="linkstyle" rel="stylesheet" type="text/css" href="/static/css/boardStyles/futaclone.css"
+        title="defaultcss">
 </head>
 
 <body>

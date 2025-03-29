@@ -51,18 +51,18 @@ class htmlclass
             <!--board specific stuff-->
             <title>' . $this->conf['boardTitle'] . '</title>
             <link rel="stylesheet" type="text/css" href="' . $this->conf['staticPath'] . 'css/base.css">
-            <link rel="stylesheet" type="text/css" href="' . $this->conf['defaultCSS'] . '" title="boardcss">
-            <link rel="shortcut icon" href="' . $this->conf['defaultFavicon'] . '">';
+            <link rel="stylesheet" type="text/css" href="' . $this->conf['style'] . '" title="boardcss">
+            <link rel="shortcut icon" href="' . $this->conf['iconPack'] . '/favicon.png">';
 
         if ($this->conf['allowRuffle'] && $this->conf['allowJS']) {
             $this->html .= '<script src="https://unpkg.com/@ruffle-rs/ruffle"></script>';
         }
         if ($this->conf['allowJS']) {
             $this->html .=
-                '<script src="' . $this->conf['staticPath'] . 'js/onClickEmbedFile.js" defer></script>
-                <script src="' . $this->conf['staticPath'] . 'js/postidToForm.js" defer></script>
-                <script src="' . $this->conf['staticPath'] . 'js/autoFillCookies.js" defer></script>
-                <script src="' . $this->conf['staticPath'] . 'js/highlight.js" defer></script>';
+                '<script src="' . $this->conf['staticPath'] . 'js/system/onClickEmbedFile.js" defer></script>
+                <script src="' . $this->conf['staticPath'] . 'js/system/postidToForm.js" defer></script>
+                <script src="' . $this->conf['staticPath'] . 'js/system/autoFillCookies.js" defer></script>
+                <script src="' . $this->conf['staticPath'] . 'js/system/highlight.js" defer></script>';
         }
         $this->html .=
 
@@ -232,7 +232,7 @@ class htmlclass
         $this->html .= '
         </table>';
         $this->drawFormSumbitionRules();
-        $this->html .= '<script src="/static/js/kao.js" defer></script>';
+        $this->html .= '<script src="' . $this->conf['staticPath'] . '/js/system/kao.js" defer></script>';
     }
     private function drawFormSumbitionRules()
     {
@@ -321,7 +321,7 @@ class htmlclass
         }
         if (empty($files) && $strippedDown) {
             // When there are no files and strippedDown is true, use the noThumb.png
-            $noThumb = $this->conf['staticPath'] . "image/noThumb.png";
+            $noThumb = $this->conf['iconPack'] . "/noThumb.png";
             $filesS .= '
             <div class="file ' . $inline . '" id="f0">
                 <img class="' . $float . ' media" loading="lazy" src="' . $noThumb . '">
@@ -334,15 +334,15 @@ class htmlclass
             $fileOnWeb = $webLocation . $file->getStoredName();  // File's location on the server.
             $thumbnail = $webLocation . $file->getStoredTName();
 
-            $SWFThumb = $this->conf['staticPath'] . "image/flash.png";
-            $unknownFileThumb = $this->conf['staticPath'] . "image/unknownFile.png";
-            $missingFileThumb = $this->conf['staticPath'] . "image/missingFile.png";
+            $SWFThumb = $this->conf['iconPack'] . "/flash.png";
+            $unknownFileThumb = $this->conf['iconPack'] . "/unknownFile.png";
+            $missingFileThumb = $this->conf['iconPack'] . "/missingFile.png";
 
             if ($file->hasThumbnail() == false) {
-                $thumbnail = $this->conf['staticPath'] . "image/noThumb.png";
+                $thumbnail = $this->conf['iconPack'] . "/noThumb.png";
             }
             if ($file->isSpoiler()) {
-                $thumbnail = $this->conf['staticPath'] . "image/spoiler.png";
+                $thumbnail = $this->conf['iconPack'] . "/spoiler.png";
             }
 
             if (!$strippedDown) {
@@ -754,10 +754,10 @@ class htmlclass
         global $AUTH;
         global $BANREPO;
         $categories = $BANREPO->loadCategories();
-        $banMessage = htmlspecialchars('<br><br><b class="warning">' . $this->conf['banMessage'] . '</b><img style="vertical-align: baseline;" loading="lazy" src="' . $this->conf['staticPath'] . 'image/hammer.png">');
+        $banMessage = htmlspecialchars('<br><br><b class="warning">' . $this->conf['banMessage'] . '</b><img style="vertical-align: baseline;" loading="lazy" src="' . $this->conf['iconPack'] . '/banhammer.png">');
         $this->html .= '
         <!--drawFormBanPost($post)-->
-        <script src="' . $this->conf['staticPath'] . 'js/adminForm.js"></script>
+        <script src="' . $this->conf['staticPath'] . '/js/system/adminForm.js"></script>
         <div class=banForm>
         <form method="post" action="' . ROOTPATH . 'admin.php" enctype="multipart/form-data">
             <input type="hidden" name="action" value="banPost">

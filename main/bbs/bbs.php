@@ -1,25 +1,25 @@
 <?php
 
-include __DIR__ . '/includes.php';
+//include BASEDIR . '/includes.php';
 
-require_once __DIR__ . '/classes/board.php';
-require_once __DIR__ . '/classes/thread.php';
-require_once __DIR__ . '/classes/post.php';
-require_once __DIR__ . '/classes/file.php';
+require_once BASEDIR . '/classes/board.php';
+require_once BASEDIR . '/classes/thread.php';
+require_once BASEDIR . '/classes/post.php';
+require_once BASEDIR . '/classes/file.php';
 
-require_once __DIR__ . '/classes/hook.php';
-require_once __DIR__ . '/classes/auth.php';
-require_once __DIR__ . '/classes/fileHandler.php';
-require_once __DIR__ . '/classes/html.php';
+require_once BASEDIR . '/classes/hook.php';
+require_once BASEDIR . '/classes/auth.php';
+require_once BASEDIR . '/classes/fileHandler.php';
+require_once BASEDIR . '/classes/html.php';
 
-require_once __DIR__ . '/classes/repos/repoBoard.php';
-require_once __DIR__ . '/classes/repos/repoThread.php';
-require_once __DIR__ . '/classes/repos/repoPost.php';
-require_once __DIR__ . '/classes/repos/repoBan.php';
+require_once BASEDIR . '/classes/repos/repoBoard.php';
+require_once BASEDIR . '/classes/repos/repoThread.php';
+require_once BASEDIR . '/classes/repos/repoPost.php';
+require_once BASEDIR . '/classes/repos/repoBan.php';
 //require_once __DIR__ .'/classes/repos/repoFile.php';
 
-require_once __DIR__ . '/lib/common.php';
-require_once __DIR__ . '/lib/adminControl.php';
+require_once BASEDIR . '/lib/common.php';
+require_once BASEDIR . '/lib/adminControl.php';
 
 $AUTH = AuthClass::getInstance();
 $HOOK = HookClass::getInstance();
@@ -223,7 +223,7 @@ function userPostNewPostToThread($board)
     $post->setThreadID($thread->getThreadID());
     $POSTREPO->updatePost($conf, $post);
 
-    $threadDir = __DIR__ . "/threads/" . $thread->getThreadID();
+    $threadDir = BASEDIR . "/threads/" . $thread->getThreadID();
     $post->moveFilesToDir($threadDir);
     $post->addFilesToRepo();
 
@@ -253,7 +253,7 @@ function userPostNewThread($board)
     $post->setThreadID($thread->getThreadID());
     $POSTREPO->updatePost($conf, $post);
 
-    $threadDir = __DIR__ . "/threads/" . $thread->getThreadID();
+    $threadDir = BASEDIR . "/threads/" . $thread->getThreadID();
     mkdir($threadDir);
     $post->moveFilesToDir($threadDir);
     $post->addFilesToRepo();

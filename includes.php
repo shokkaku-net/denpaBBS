@@ -1,8 +1,10 @@
 <?php
 
 require 'vendor/autoload.php';
+define('BASEDIR', __DIR__ . '/');
 
-$globalConf = require __DIR__ . "/conf.php";
+
+$globalConf = require BASEDIR . "conf.php";
 
 if ($globalConf['debug'] == true) {
     ini_set('display_errors', '1');
@@ -27,7 +29,7 @@ ini_set("memory_limit", $globalConf['memoryLimit']);
 // Autoloader to automatically load class files based on their namespace and class name
 spl_autoload_register(function ($class) {
     $prefix = 'Modules\\';
-    $base_dir = __DIR__ . '/modules/';
+    $base_dir = BASEDIR . '/modules/';
 
     // Does the class use the namespace prefix?
     $len = strlen($prefix);

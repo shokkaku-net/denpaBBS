@@ -1,15 +1,15 @@
 <?php
 
-include __DIR__ . '/includes.php';
+//include BASEDIR . '/includes.php';
 
-require_once __DIR__ . '/classes/html.php';
-require_once __DIR__ . '/classes/auth.php';
-require_once __DIR__ . '/classes/repos/repoPost.php';
-require_once __DIR__ . '/classes/repos/repoBan.php';
-require_once __DIR__ . '/classes/fileHandler.php';
+require_once BASEDIR . '/classes/html.php';
+require_once BASEDIR . '/classes/auth.php';
+require_once BASEDIR . '/classes/repos/repoPost.php';
+require_once BASEDIR . '/classes/repos/repoBan.php';
+require_once BASEDIR . '/classes/fileHandler.php';
 
-require_once __DIR__ . '/lib/common.php';
-require_once __DIR__ . '/lib/adminControl.php';
+require_once BASEDIR . '/lib/common.php';
+require_once BASEDIR . '/lib/adminControl.php';
 
 $AUTH = AuthClass::getInstance();
 $board = getBoardFromRequest(true);

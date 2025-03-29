@@ -3,6 +3,7 @@ conf.php
 vendor
 .composer
 .install_bypass
+customRoute.php
 cache/*
 threads/*
 !threads/staging/readme.txt

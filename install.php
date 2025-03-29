@@ -305,6 +305,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 
 		$POSTREPO->createPost($board->getConf(), $post2);
 
+		$customRoutePath = __DIR__ . '/customRoute.php';
+		if (!file_exists($customRoutePath)) {
+			$customRouteTemplate = <<<'PHP'
+		<?php
+		// This is for the site admin to define optional custom routes.
+		// If a match is found, handle it and call exit; otherwise the default routing will continue.
+
+		$requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+		$path = trim($requestPath, '/');
+		$customPhpPath = BASEDIR . '/main/custom/';
+
+		if (preg_match('#^connection/([0-9_]+)/?$#', $path, $m)) {
+			$_GET['wave'] = $m[1];
+			require $customPhpPath . "wire.php";
+			exit;
+
+		}
+
+		// If nothing is matched, do nothing — the default router will continue.
+				
+		PHP;
+
+			file_put_contents($customRoutePath, $customRouteTemplate);
+		}
+
+		$customPhpPath = __DIR__ . '/main/custom/wire.php';
+		if (!file_exists($customPhpPath)) {
+			$customPhpTemplate = <<<'PHP'
+		<?php
+
+		$wave = isset($_GET['wave']) ? (int) $_GET['wave'] : 0;
+		$limit = min($wave, 100);
+
+		for ($i = 0; $i < $limit; $i++) {
+			echo "<h1>電波がビンビン来てる感じ。</h1>";
+		}
+		
+		PHP;
+
+			file_put_contents($customPhpPath, $customPhpTemplate);
+		}
+
 		$messages[] = "Intro board successfully created!";
 		$status = "success";
 	} catch (Exception $e) {

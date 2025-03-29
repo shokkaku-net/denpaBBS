@@ -163,14 +163,14 @@ rcctl start php83_fpm httpd
 with everything set up. go to your website and go to install.php
 fallow the instructions and then delete instal.php off your webserver and everything should be set!
 
-## structure of the software
+# structure of the software
 
 all acsses should go thu route.php. when you first install, all things will try to go into install.php.
 once install is compleate, you will have .install_bypass createded. there will be a check preventing install.php from loading again, if the router is in place.
 
 this route file is helpful as it will let us inject request paramiters and have a cleaner uri.
 
-# common things
+## common things
 
 this software is not completed, but here is some common things that curently exist.
 all of the routes should point to someplace in the /main/ directory.
@@ -190,7 +190,7 @@ apono installing, a file called customRoute.php will be made, that can be used i
 say you made a cool news feed script about newest gunpla anouncements. you can add routes there, and them make pages to it in /main/custom
 and when you wish to gitpull, it wont break. or maybe your just have a seprate project into /main/custom you git clone there, and then you add custom routing so u can have a sub system of some sort <small>untested but i belive might work, try it!</small>
 
-# unfinsihed things
+## unfinsihed things
 
 now some there is things i just want and wish from this software i just have not made.
 
@@ -201,7 +201,7 @@ things i really want to get done is, convert html that i have to use blade (that
 decouple more scripts i have for bbs.php and admin.php
 thoese are turing into a mess.
 
-## support
+# support
 
 finaly, i dont really want much for you using my software, i got a bsd 3 clause. all i want is for you to leave a star and help me become a more recognized developer.
 as of right now... highschool drop out with no ged gets me nothing.

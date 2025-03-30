@@ -1,20 +1,22 @@
 <?php
 
-class FileDataClass {
+class FileDataClass
+{
     // move this into its own object.
     private $fileID;
     private $postID;
     private $threadID;
     private $conf;
-    
+
     private string $fileName; //file name
     private string $filePath;//filename as stored on the system
     private $fileSize; //file size
     private string $md5chksum; //file hash
     private $thumnailPath;
 
-    
-    public function __construct($conf, string $filePath, string $fileName='noName', string $md5chksum='null', $fileID=-1, $postID=0, $threadID=0) {
+
+    public function __construct($conf, string $filePath, string $fileName = 'noName', string $md5chksum = 'null', $fileID = -1, $postID = 0, $threadID = 0)
+    {
         $this->filePath = $filePath;
         $this->fileName = $fileName;
         $this->md5chksum = $md5chksum;
@@ -25,7 +27,8 @@ class FileDataClass {
         $this->threadID = $threadID;
     }
 
-    public function moveToDir($dir, $isImport=false){
+    public function moveToDir($dir, $isImport = false)
+    {
         // Ensure the directory ends with a slash
         $dir = rtrim($dir, '/') . '/';
 
@@ -33,130 +36,180 @@ class FileDataClass {
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
             throw new Exception("Failed to create directory: $dir");
         }
-        
+
         $fileName = basename($this->filePath);
         $newFilePath = $dir . $fileName;
-        if(is_null($this->filePath) == false && file_exists($this->filePath)){
+        if (is_null($this->filePath) == false && file_exists($this->filePath)) {
             rename($this->filePath, $newFilePath);
-        }else{
+        } else {
             // LOG!!
         }
 
-        $tFileName = "t". pathinfo($this->filePath, PATHINFO_FILENAME) . ".jpg"; 
-        $newThumbnailPath = $dir . $tFileName ;
-        if(is_null($this->thumnailPath) == false && file_exists($this->thumnailPath)){
+        $tFileName = "t" . pathinfo($this->filePath, PATHINFO_FILENAME) . ".jpg";
+        $newThumbnailPath = $dir . $tFileName;
+        if (is_null($this->thumnailPath) == false && file_exists($this->thumnailPath)) {
             rename($this->thumnailPath, $newThumbnailPath);
         }
-        
+
         // Update the object's file paths
         $this->filePath = $newFilePath;
         $this->thumnailPath = $newThumbnailPath;
     }
-    public function setFileSize($s){
+    public function setFileSize($s)
+    {
         $this->fileSize = $s;
     }
-    public function setFilePath($n){
+    public function setFilePath($n)
+    {
         $this->filePath = $n;
     }
-    public function setMD5($m){
+    public function setMD5($m)
+    {
         $this->md5chksum = $m;
     }
-    public function setFileName($n){
+    public function setFileName($n)
+    {
         $this->fileName = $n;
     }
-    public function setPostID($id){
+    public function setPostID($id)
+    {
         $this->postID = $id;
     }
-    public function setThreadID($id){
+    public function setThreadID($id)
+    {
         $this->threadID = $id;
     }
-    public function setConf($c){
+    public function setConf($c)
+    {
         $this->conf = $c;
     }
-    public function setFileID($id){
+    public function setFileID($id)
+    {
         $this->fileID = $id;
     }
-    public function setThumnailPath($path){
+    // remove this.  fore reason below
+    public function setThumnailPath($path)
+    {
         $this->thumnailPath = $path;
     }
 
-    public function getFileSize(){
+    public function getFileSize()
+    {
         return $this->fileSize;
     }
-    public function getFilePath(){
+
+    //remove this. dynamicly make the path, use the threadID and file name on disk.
+    public function getFilePath()
+    {
         return $this->filePath;
     }
-    public function getMD5(){
+    public function getMD5()
+    {
         return $this->md5chksum;
     }
-    public function getFileName(){
+    public function getFileName()
+    {
         return $this->fileName;
     }
-    public function getSizeFormated(){
-        if(file_exists($this->filePath) == false){
+    // this is bad, move it to file handler
+    public function getSizeFormated()
+    {
+        $path = $this->getFullPath();
+
+        if (!file_exists($path)) {
             return "(?x?)";
         }
-        $size = filesize($this->filePath);
+
+        $size = filesize($path);
+        if ($size <= 0) {
+            return "(0B)";
+        }
+
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $i = floor(log($size, 1024));
-        $formattedSize = round($size / (1024 ** $i), 2) . ' ' . $units[$i];
-    
-        // Check if the file is an image
-        if (exif_imagetype($this->filePath) !== false) {
-            if ($this->getFileExtention() == "swf"){
-                return $formattedSize;
-            }
-            // Get image dimensions if applicable
-            $imageSize = getimagesize($this->filePath);
+
+        if ($i === 0) {
+            $formattedSize = $size . ' B';
+        } else {
+            $formattedSize = round($size / (1024 ** $i), 2) . ' ' . $units[$i];
+        }
+
+        if (exif_imagetype($path) !== false && $this->getFileExtention() !== "swf") {
+            $imageSize = getimagesize($path);
             if ($imageSize !== false && isset($imageSize[0]) && isset($imageSize[1])) {
-                $width = $imageSize[0];
-                $height = $imageSize[1];
-                $formattedSize .= " ({$width}x{$height})";
+                $formattedSize .= " ({$imageSize[0]}x{$imageSize[1]})";
             }
         }
-    
+
         return $formattedSize;
     }
-    public function getStoredTName(){
-        //this is so fucking bad....
-        if(is_null($this->thumnailPath)){
-            return "t".pathinfo($this->filePath, PATHINFO_FILENAME).".jpg"; 
+    public function getStoredNameThumb()
+    {
+        if (!$this->thumnailPath && $this->filePath) {
+            return "t" . pathinfo($this->filePath, PATHINFO_FILENAME) . ".jpg";
         }
         return basename($this->thumnailPath);
     }
-    public function getStoredName(){
+
+    //this is bad. change it to only stored name in db and not path
+    public function getStoredName()
+    {
+        if (is_null($this->filePath)) {
+            return pathinfo($this->filePath, PATHINFO_FILENAME) . ".jpg";
+        }
         return basename($this->filePath);
     }
-    public function getFileExtention(){
-        return pathinfo($this->filePath, PATHINFO_EXTENSION);
+    public function getFileExtention()
+    {
+        return pathinfo($this->getFullPath(), PATHINFO_EXTENSION);
     }
-    public function hasThumbnail(){
-        return file_exists($this->getThumbnailPath());
+    public function hasThumbnail()
+    {
+        return file_exists($this->getFullPath());
     }
-    public function isMissing(){
-        return !file_exists($this->filePath);
+    public function isMissing()
+    {
+        return !file_exists($this->getFullPath());
     }
-    public function isSpoiler(){
+    public function isSpoiler()
+    {
         return false;
     }
 
-    public function getPostID(){
+    public function getPostID()
+    {
         return $this->postID;
     }
-    public function getThreadID(){
+    public function getThreadID()
+    {
         return $this->threadID;
     }
-    public function getConf(){
+    public function getConf()
+    {
         return $this->conf;
     }
-    public function getFileID(){
+    public function getFileID()
+    {
         return $this->fileID;
     }
-    public function getThumbnailPath(){
-        if(is_null($this->thumnailPath)){
-            $this->thumnailPath = dirname($this->filePath). "/t".pathinfo($this->filePath, PATHINFO_FILENAME).".jpg";
-        }
-        return $this->thumnailPath;
+    public function getFullPath()
+    {
+        return BASEDIR . 'threads/' . $this->getThreadID() . '/' . $this->getStoredName();
+
+    }
+    public function getFullPathThumb()
+    {
+        return BASEDIR . 'threads/' . $this->getThreadID() . '/' . $this->getStoredNameThumb();
+
+    }
+    public function getWebPath()
+    {
+        //drawErrorPageAndDie(WEBPATH);
+        return WEBPATH . 'threads/' . $this->getThreadID() . '/' . $this->getStoredName();
+    }
+    public function getWebPathThumb()
+    {
+        return WEBPATH . 'threads/' . $this->getThreadID() . '/' . $this->getStoredNameThumb();
     }
 }
 
@@ -164,18 +217,18 @@ class FileDataClass {
 
 
 /*
-		if (function_exists('exif_read_data') && function_exists('exif_imagetype')) {
-			$imageType = exif_imagetype($dest);
-			if ($imageType == IMAGETYPE_JPEG) {
-				$exif = @exif_read_data($dest);
-				if ($exif !== false) {
-					// Remove Exif data
-					$image = imagecreatefromjpeg($dest);
-					imagejpeg($image, $dest, 100);
-					imagedestroy($image);
-				}
-			}
-		}
+        if (function_exists('exif_read_data') && function_exists('exif_imagetype')) {
+            $imageType = exif_imagetype($dest);
+            if ($imageType == IMAGETYPE_JPEG) {
+                $exif = @exif_read_data($dest);
+                if ($exif !== false) {
+                    // Remove Exif data
+                    $image = imagecreatefromjpeg($dest);
+                    imagejpeg($image, $dest, 100);
+                    imagedestroy($image);
+                }
+            }
+        }
 */
 /*
         // Now $validFiles contains information about all validly uploaded files

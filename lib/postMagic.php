@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ .'/../classes/repos/repoPost.php';
-require_once __DIR__ .'/common.php';
+require_once __DIR__ . '/../classes/repos/repoPost.php';
+require_once __DIR__ . '/common.php';
 
 /*
  *  post magic has things that are needed by post to get up and working. tripcodes.
@@ -8,7 +8,8 @@ require_once __DIR__ .'/common.php';
  */
 
 // can return null if none is found
-function getExtensionByMimeType($mimeType): string {
+function getExtensionByMimeType($mimeType): string
+{
     $mimeMap = [
         // Images
         'image/jpeg' => '.jpg',
@@ -20,7 +21,7 @@ function getExtensionByMimeType($mimeType): string {
         'image/bmp' => '.bmp',
         'image/vnd.microsoft.icon' => '.ico',
         'image/heic' => '.heic',
-        
+
         // Video
         'video/mp4' => '.mp4',
         'video/x-msvideo' => '.avi',
@@ -30,7 +31,7 @@ function getExtensionByMimeType($mimeType): string {
         'video/webm' => '.webm',
         'video/ogg' => '.ogv',
         'video/x-flv' => '.flv',
-        
+
         // Audio
         'audio/mpeg' => '.mp3',
         'audio/ogg' => '.ogg',
@@ -39,7 +40,7 @@ function getExtensionByMimeType($mimeType): string {
         'audio/x-ms-wma' => '.wma',
         'audio/flac' => '.flac',
         'audio/x-midi' => '.midi',
-        
+
         // Documents
         'application/pdf' => '.pdf',
         'application/msword' => '.doc',
@@ -54,7 +55,7 @@ function getExtensionByMimeType($mimeType): string {
         'application/rtf' => '.rtf',
         'application/xml' => '.xml',
         'application/json' => '.json',
-        
+
         // Archives
         'application/zip' => '.zip',
         'application/x-rar-compressed' => '.rar',
@@ -63,13 +64,13 @@ function getExtensionByMimeType($mimeType): string {
         'application/x-bzip' => '.bz',
         'application/x-bzip2' => '.bz2',
         'application/x-gzip' => '.gz',
-        
+
         // Fonts
         'font/otf' => '.otf',
         'font/ttf' => '.ttf',
         'font/woff' => '.woff',
         'font/woff2' => '.woff2',
-        
+
         // Others
         'application/vnd.adobe.flash.movie' => '.swf',
         'application/x-shockwave-flash' => '.swf',
@@ -85,7 +86,7 @@ function getExtensionByMimeType($mimeType): string {
         'image/x-olympus-orf' => '.orf',
         'image/x-panasonic-raw' => '.raw',
         'image/x-sony-arw' => '.arw',
-        
+
         // eBooks
         'application/epub+zip' => '.epub',
         'application/x-mobipocket-ebook' => '.mobi',
@@ -96,7 +97,7 @@ function getExtensionByMimeType($mimeType): string {
         'model/obj' => '.obj',
         'model/gltf-binary' => '.glb',
         'model/gltf+json' => '.gltf',
-        
+
         // Scripts
         'application/javascript' => '.js',
         'application/x-python-code' => '.py',
@@ -108,30 +109,31 @@ function getExtensionByMimeType($mimeType): string {
         'text/x-php' => '.php',
         'application/x-perl' => '.pl',
         'application/x-shellscript' => '.sh',
-        
+
         // Markup/Stylesheets
         'text/css' => '.css',
         'text/markdown' => '.md',
         'application/xhtml+xml' => '.xhtml',
         'text/xml' => '.xml',
-                
+
         // Fonts
         'application/x-font-ttf' => '.ttf',
         'application/x-font-otf' => '.otf',
         'application/font-woff' => '.woff',
         'application/font-woff2' => '.woff2',
-        
+
         // Executables
         'application/x-msdownload' => '.exe',
         'application/x-ms-installer' => '.msi',
-        
+
         // Add more MIME types as needed
     ];
 
     return $mimeMap[$mimeType] ?? null; // Return false if MIME type is not found
 }
 
-function isIPBanned($ip): bool{
+function isIPBanned($ip): bool
+{
     return false;
 }
 
@@ -142,9 +144,10 @@ function isIPBanned($ip): bool{
  *       'tripcode' => $tripcode
  *    ];
  */
-function genTripcode(string $password, string $salt = ''): array {
+function genTripcode(string $password, string $salt = ''): array
+{
     if (empty($password)) {
-       return [];
+        return [];
     }
 
     // Determine tripcode type
@@ -177,7 +180,7 @@ function genTripcode(string $password, string $salt = ''): array {
     // Generate the tripcode
     if ($hashType === 'regular') {
         $fullHash = crypt($password, $salt);
-    }else{
+    } else {
         $fullHash = hash('sha256', $password . $salt);
     }
 
@@ -197,7 +200,8 @@ function genTripcode(string $password, string $salt = ''): array {
     ];
 }
 
-function splitTextAtTripcodePass(string $text): array {
+function splitTextAtTripcodePass(string $text): array
+{
     //replace reserved characters.
     $text = str_replace(["◆", "★"], ["◇", "☆"], $text);
     $pos = strpos($text, '#');
@@ -212,50 +216,57 @@ function splitTextAtTripcodePass(string $text): array {
 }
 
 // get the tripcode that is after a name "anon◆extractThisPart"
-function extractTripCode(string $text): string{
+function extractTripCode(string $text): string
+{
     return "";
 }
 
-function postResolve($conf, $postID){
+function postResolve($conf, $postID)
+{
     $POSTREPO = PostRepoClass::getInstance();
     $boardName = boardIDToName($conf['boardID']);
     $post = $POSTREPO->loadPostByID($conf, $postID);
-    if(is_null($post)){
+    if (is_null($post)) {
         return "#";
     }
     $threadID = $post->getThreadID();
-    if(is_null($threadID)){
+    if (is_null($threadID)) {
         return "#";
     }
 
-    return ROOTPATH . $boardName . '/thread/' . $threadID . '/#p' . $postID;
+    return WEBPATH . $boardName . '/thread/' . $threadID . '/#p' . $postID;
 }
 
-function sortPostsByTimeDesending(&$posts){
+function sortPostsByTimeDesending(&$posts)
+{
     usort($posts, function ($a, $b) {
         return $a->getUnixTime() - $b->getUnixTime();
     });
 }
 
-function sortPostsByTimeAesending(&$posts){
+function sortPostsByTimeAesending(&$posts)
+{
     usort($posts, function ($a, $b) {
         return $b->getUnixTime() - $a->getUnixTime();
     });
 }
 
-function sortThreadByBump(&$threads){
+function sortThreadByBump(&$threads)
+{
     usort($threads, function ($a, $b) {
         return $b->getLastBumpTime() - $a->getLastBumpTime();
     });
 }
-function sortThreadByDateCreated(&$threads){
+function sortThreadByDateCreated(&$threads)
+{
     usort($threads, function ($a, $b) {
         return $b->getOPPost()->getUnixTime() - $a->getOPPost()->getUnixTime();
     });
 }
 
-function filterThreadsByKeyword(array $threads, string $keyword, bool $caseSensitive): array {
-    return array_filter($threads, function($thread) use ($keyword, $caseSensitive) {
+function filterThreadsByKeyword(array $threads, string $keyword, bool $caseSensitive): array
+{
+    return array_filter($threads, function ($thread) use ($keyword, $caseSensitive) {
         $comment = $thread->getOPPost()->getComment();
         if ($caseSensitive) {
             return strpos($comment, $keyword) !== false;

@@ -24,7 +24,7 @@ return [
      *  openbsd guys are /htdocs/denpaBBS/threads/
      *  this gets changed from install.php
      */
-    'threadsDir' => '/var/www/html/denpaBBS/threads/',
+    'threadsDir' => '/var/www/html/denpaBBS/threads/', //depracated
     /* this is how long a log in session last for. (1 hour) */
     'sessionLifeTime' => 3600,
     'memoryLimit' => '128M',    // the ammount of memeory denpaBBS can use 

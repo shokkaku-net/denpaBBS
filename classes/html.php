@@ -109,7 +109,7 @@ class htmlclass
             $this->drawNavGroup($urlGroup);
         }
         $this->drawNavGroup($conf['navLinksRight']);
-        $this->drawNavGroup(['admin' => ROOTPATH . $conf['boardNameID'] . '/admin/']);
+        $this->drawNavGroup(['admin' => WEBPATH . $conf['boardNameID'] . '/admin/']);
         $this->html .= '
         </span>
         </div>';
@@ -138,7 +138,7 @@ class htmlclass
     {
         $this->html .= '
         <!--postManagerWraper($drawFunc, $parameter)-->
-        <form name="managePost" id="managePost" action="' . ROOTPATH . $this->conf['boardNameID'] . '" method="post">';
+        <form name="managePost" id="managePost" action="' . WEBPATH . $this->conf['boardNameID'] . '" method="post">';
         call_user_func_array($drawFunc, $parameter);
         $this->html .= '
             <!--make dropdown with other options-->
@@ -276,9 +276,9 @@ class htmlclass
     {
         $this->html .= '
         <!--drawFormNewThread()-->
-        [<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/catalog/">Catalog</a>]
+        [<a href="' . WEBPATH . $this->conf['boardNameID'] . '/catalog/">Catalog</a>]
         <center id="mainForm">
-            <form id="formThread" action="' . ROOTPATH . $this->conf['boardNameID'] . '" method="post" enctype="multipart/form-data">
+            <form id="formThread" action="' . WEBPATH . $this->conf['boardNameID'] . '" method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="postNewThread">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">';
         $this->drawMainFormBody("New Thread", true);
@@ -290,12 +290,12 @@ class htmlclass
     {
         $this->html .= '
         <!--drawFormNewPost($threadID)-->
-        [<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/">Return</a>]
+        [<a href="' . WEBPATH . $this->conf['boardNameID'] . '/">Return</a>]
         [<a href="#bottom">bottom</a>]
-        [<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/catalog/">Catalog</a>]
+        [<a href="' . WEBPATH . $this->conf['boardNameID'] . '/catalog/">Catalog</a>]
         <center class="theading"><b>Posting mode: Reply</b></center>
         <center id="mainForm">
-            <form id="formPost" action="' . ROOTPATH . $this->conf['boardNameID'] . '" method="POST" enctype="multipart/form-data">
+            <form id="formPost" action="' . WEBPATH . $this->conf['boardNameID'] . '" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="action" value="postToThread">
             <input type="hidden" name="threadID" value="' . $threadID . '">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">';
@@ -330,9 +330,10 @@ class htmlclass
         // Loop through each file per post and get the name and file elements and attach them
         foreach ($files as $file) {
             $count = $count + 1;
-            $webLocation = ROOTPATH . 'threads/' . $threadID . '/';   // Location where a user can make a GET request to the file.
-            $fileOnWeb = $webLocation . $file->getStoredName();  // File's location on the server.
-            $thumbnail = $webLocation . $file->getStoredTName();
+            $webLocation = WEBPATH . 'threads/' . $threadID . '/';   // Location where a user can make a GET request to the file.
+            //drawErrorPageAndDie($file->getWebPath());
+            $fileOnWeb = $file->getWebPath();  // File's location on the server.
+            $thumbnail = $file->getWebPathThumb();
 
             $SWFThumb = $this->conf['iconPack'] . "/flash.png";
             $unknownFileThumb = $this->conf['iconPack'] . "/unknownFile.png";
@@ -348,11 +349,11 @@ class htmlclass
             if (!$strippedDown) {
                 $fileNameS .= '
                 <div class="fileName" id="f' . $count . '">
-                    [<a href="' . $webLocation . $file->getStoredName() . '" download="' . $file->getFileName() . '">
+                    [<a href="' . $fileOnWeb . '" download="' . $file->getFileName() . '">
                         download
                     </a>]
                     <small>' . $file->getSizeFormated() . '</small>
-                    <a href="' . $webLocation . $file->getStoredName() . '" target="_blank" rel="nofollow"> 
+                    <a href="' . $fileOnWeb . '" target="_blank" rel="nofollow"> 
                         ' . $file->getFileName() . '
                     </a> 
                 </div>';
@@ -369,7 +370,7 @@ class htmlclass
                     <img class="' . $float . ' media" src="' . $thumbnail . '" loading="lazy" title="' . $file->getStoredName() . '">';
                 } else {
                     $filesS .= '
-                    <a href="' . $webLocation . $file->getStoredName() . '" class="image" target="_blank" rel="nofollow">
+                    <a href="' . $fileOnWeb . '" class="image" target="_blank" rel="nofollow">
                         <img class="' . $float . ' media" src="' . $thumbnail . '" loading="lazy" title="' . $file->getStoredName() . '">
                     </a>';
                 }
@@ -379,7 +380,7 @@ class htmlclass
                     <img class="' . $float . ' media" src="' . $thumbnail . '" loading="lazy" title="' . $file->getStoredName() . '">';
                 } else {
                     $filesS .= '
-                    <a href="' . $webLocation . $file->getStoredName() . '" class="video" target="_blank" rel="nofollow">
+                    <a href="' . $fileOnWeb . '" class="video" target="_blank" rel="nofollow">
                         <img class="' . $float . ' media" src="' . $thumbnail . '" loading="lazy" title="' . $file->getStoredName() . '">
                     </a>';
                 }
@@ -389,7 +390,7 @@ class htmlclass
                     <img class="' . $float . ' media" src="' . $SWFThumb . '" loading="lazy" title="' . $file->getStoredName() . '">';
                 } else {
                     $filesS .= '
-                    <a href="' . $webLocation . $file->getStoredName() . '" class="swf" target="_blank" rel="nofollow">
+                    <a href="' . $fileOnWeb . '" class="swf" target="_blank" rel="nofollow">
                         <img class="' . $float . ' media" src="' . $SWFThumb . '" loading="lazy" title="' . $file->getStoredName() . '">
                     </a>';
                 }
@@ -403,7 +404,7 @@ class htmlclass
                     <img class="' . $float . ' media" src="' . $unknownFileThumb . '" loading="lazy" title="' . $file->getStoredName() . '">';
                 } else {
                     $filesS .= '
-                    <a href="' . $webLocation . $file->getStoredName() . '" target="_blank" rel="nofollow">
+                    <a href="' . $fileOnWeb . '" target="_blank" rel="nofollow">
                         <img class="' . $float . ' media" src="' . $unknownFileThumb . '" loading="lazy" title="' . $file->getStoredName() . '">
                     </a>';
                 }
@@ -449,10 +450,10 @@ class htmlclass
                     </span>
                     <span class="time">' . date('Y-m-d H:i:s', $post->getUnixTime()) . '</span>
                     <span class="postnum">
-                        <a href="' . ROOTPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/#p' . $postID . '" class="no">No.</a>&nbsp;<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/#formPost" title="Quote">' . $postID . '</a>
+                        <a href="' . WEBPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/#p' . $postID . '" class="no">No.</a>&nbsp;<a href="' . WEBPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/#formPost" title="Quote">' . $postID . '</a>
                     </span>';
         if ($isOP && $isListingMode) {
-            $this->html .= '<span>[&nbsp;<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/" class="no">Reply</a>&nbsp;]</span>';
+            $this->html .= '<span>[&nbsp;<a href="' . WEBPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/" class="no">Reply</a>&nbsp;]</span>';
         }
         $this->html .= '
                 </div>';
@@ -581,7 +582,7 @@ class htmlclass
         $this->html .= '
             ACTIONS :&nbsp;';
         $this->drawLogOutForm();
-        $this->html .= '[<a href="' . ROOTPATH . boardIDToName($this->board->getBoardID()) . '/admin/postListing" >admin post view</a>]
+        $this->html .= '[<a href="' . WEBPATH . boardIDToName($this->board->getBoardID()) . '/admin/postListing" >admin post view</a>]
         </div>';
     }
     private function drawPostIP($post)
@@ -603,7 +604,7 @@ class htmlclass
         }
         $this->html .=
             '<span>
-            [<a class="postByIP" href="' . ROOTPATH . $post->getConf()['boardNameID'] . '/admin/postListing/byIP/' . $post->getPostID() . '">' . $ip . '</a>]
+            [<a class="postByIP" href="' . WEBPATH . $post->getConf()['boardNameID'] . '/admin/postListing/byIP/' . $post->getPostID() . '">' . $ip . '</a>]
         </span>';
     }
     public function drawCustomButton($text, $class, $href)
@@ -615,11 +616,11 @@ class htmlclass
     }
     private function drawBanButton($post)
     {
-        $this->drawCustomButton("ban", "banButton", ROOTPATH . $post->getConf()['boardNameID'] . '/admin/ban/' . $post->getPostID());
+        $this->drawCustomButton("ban", "banButton", WEBPATH . $post->getConf()['boardNameID'] . '/admin/ban/' . $post->getPostID());
     }
     private function drawEditButton($post)
     {
-        $this->drawCustomButton("edit", "editButton", ROOTPATH . $post->getConf()['boardNameID'] . '/admin/edit/' . $post->getPostID());
+        $this->drawCustomButton("edit", "editButton", WEBPATH . $post->getConf()['boardNameID'] . '/admin/edit/' . $post->getPostID());
     }
     private function drawAdminViewPost($post)
     {
@@ -637,7 +638,7 @@ class htmlclass
         $this->html .= '
         <!--drawLoginForm()-->
         <center class="loginForm">
-        <form method="POST" action="' . ROOTPATH . 'admin" enctype="multipart/form-data">
+        <form method="POST" action="' . WEBPATH . 'admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="login">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <input type="password" id="password" name="password" required>
@@ -649,7 +650,7 @@ class htmlclass
     {
         $this->html .= '
         <!--drawLogOutForm()-->
-        <form method="post" action="' . ROOTPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
+        <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="logout">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             [<button type="submit" class="hyperButton">Logout</button>]
@@ -664,7 +665,7 @@ class htmlclass
         <!--drawFormCreateBoard()-->
         <center class="adminForm">
         <h3><b>Create Ban Catagories</b></h3>
-        <form method="post" action="' . ROOTPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
+        <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <input type="hidden" name="action" value="createCategory">
             <table>
@@ -691,7 +692,7 @@ class htmlclass
         <!--drawFormCreateBoard()-->
         <center class="adminForm">
         <h3><b>Create board form</b></h3>
-        <form method="post" action="' . ROOTPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
+        <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="createBoard">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <table>
@@ -726,7 +727,7 @@ class htmlclass
         <!--drawFormDeleteBoard()-->
         <center class="adminForm">
         <h3><b>Delete board form</b></h3>
-        <form method="post" action="' . ROOTPATH . $this->conf['boardNameID'] . '/admin">
+        <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin">
             <input type="hidden" name="action" value="deleteBoard">
             <input type="hidden" name="boardID" value="' . $currentBoardID . '">
             <table>
@@ -759,7 +760,7 @@ class htmlclass
         <!--drawFormBanPost($post)-->
         <script src="' . $this->conf['staticPath'] . '/js/system/adminForm.js"></script>
         <div class=banForm>
-        <form method="post" action="' . ROOTPATH . 'admin.php" enctype="multipart/form-data">
+        <form method="post" action="' . WEBPATH . 'admin.php" enctype="multipart/form-data">
             <input type="hidden" name="action" value="banPost">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <input type="hidden" name="postID" value="' . $post->getPostID() . '">';
@@ -903,7 +904,7 @@ class htmlclass
     private function drawFormCatalog($sort, $keyword, $caseSensitive)
     {
         $this->html .= '<!--drawFormCatalog()-->
-        <form method="post" action="' . ROOTPATH . $this->conf['boardNameID'] . '">
+        <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '">
             <input type="hidden" name="action" value="catalog">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <span>Sort by:</span>
@@ -942,7 +943,7 @@ class htmlclass
     private function drawCatalog($threads)
     {
         $this->html .= '<!--drawCatalogPage($threads)-->';
-        $this->html .= '[<a href="' . ROOTPATH . $this->conf['boardNameID'] . '/">Return</a>]';
+        $this->html .= '[<a href="' . WEBPATH . $this->conf['boardNameID'] . '/">Return</a>]';
         $this->html .= '[<a href="#bottom">bottom</a>]';
         $this->html .= '<center class="theading2"><b>Catalog</b></center>';
         $this->html .= '<center id=catalog>';
@@ -955,7 +956,7 @@ class htmlclass
                 $sub = "no subject";
             }
             $this->html .= '<div class=catalogItem>
-            <a href="' . ROOTPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/" class="no">';
+            <a href="' . WEBPATH . $this->conf['boardNameID'] . '/thread/' . $threadID . '/" class="no">';
             $this->drawFiles($post->getFiles(), $threadID, true);
             $this->html .= '
             </a>

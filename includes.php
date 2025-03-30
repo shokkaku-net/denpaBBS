@@ -1,10 +1,11 @@
 <?php
-
-require 'vendor/autoload.php';
 define('BASEDIR', __DIR__ . '/');
 
-
 $globalConf = require BASEDIR . "conf.php";
+
+require 'vendor/autoload.php';
+define("WEBPATH", $globalConf['webRootPath']);
+define("DOMAIN", $globalConf['domain']);
 
 if ($globalConf['debug'] == true) {
     ini_set('display_errors', '1');
@@ -12,8 +13,6 @@ if ($globalConf['debug'] == true) {
     error_reporting(E_ALL);
 }
 
-define("ROOTPATH", $globalConf['webRootPath']);
-define("DOMAIN", $globalConf['domain']);
 
 define("MAX_INPUT_LENGTH", 255 - 128); /* you cant make this bigger then 255 with out changing the cap to to the db */
 define("MAX_INPUT_LENGTH_PASSWORD", 16 - 8); /* you cant make this bigger then 16 with out changing the cap to to the db */

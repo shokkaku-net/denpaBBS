@@ -10,7 +10,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require 'vendor/autoload.php';
 
 
 $status = null;
@@ -260,11 +259,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 	updateConf();
 
 	try {
+		//try connect and create db
 		$connection = new mysqli($_POST['host'], $_POST['username'], $_POST['password'], $_POST['databaseName']);
 		createDB($connection);
 		$connection->close();
 		$messages[] = "Database successfully set up!";
 
+		//create post and thread
 		require_once __DIR__ . '/lib/adminControl.php';
 		require_once __DIR__ . '/classes/repos/repoPost.php';
 		require_once __DIR__ . '/classes/repos/repoThread.php';
@@ -291,20 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 		$POSTREPO->createPost($board->getConf(), $post);
 		$THREADREPO->createThread($board->getConf(), $thread, $post);
 
-		$post2 = new PostDataClass(
-			$board->getConf(),
-			"System",
-			"",
-			"Check list of things",
-			"You should do these things:<br><br>1. Delete <code>install.php</code> (this file leaks database credentials!)<br>2. Edit <code>/boardConfigs/baseConf.php</code> and set your site defaults. Don't forget to add your own salt values.",
-			"",
-			$time + 1,
-			"127.0.0.1",
-			1
-		);
-
-		$POSTREPO->createPost($board->getConf(), $post2);
-
+		// create the custom route file 
 		$customRoutePath = __DIR__ . '/customRoute.php';
 		if (!file_exists($customRoutePath)) {
 			$customRouteTemplate = <<<'PHP'
@@ -330,6 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 			file_put_contents($customRoutePath, $customRouteTemplate);
 		}
 
+		// create the custom route file 
 		$customPhpPath = __DIR__ . '/main/custom/wire.php';
 		if (!file_exists($customPhpPath)) {
 			$customPhpTemplate = <<<'PHP'
@@ -356,6 +345,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 	}
 }
 
+require 'vendor/autoload.php';
 
 use duncan3dc\Laravel\BladeInstance;
 $blade = new BladeInstance(__DIR__ . "/views", __DIR__ . "/cache");

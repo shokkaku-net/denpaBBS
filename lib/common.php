@@ -9,7 +9,7 @@ require_once __DIR__ . '/../classes/repos/repoBoard.php';
 // function postWebHook($boardID, $threadID, $postID=""){
 //     global $globalConf;
 
-//     $url = 'https://'.DOMAIN.ROOTPATH.boardIDToName($boardID).'/thread/'.$threadID.'/#p'.$postID;
+//     $url = 'https://'.DOMAIN.WEBPATH.boardIDToName($boardID).'/thread/'.$threadID.'/#p'.$postID;
 
 //     $stream = stream_context_create([
 //         'http' => [
@@ -122,7 +122,7 @@ function redirectToPost($post)
     $threadID = $post->getThreadID();
     $postID = $post->getPostID();
 
-    $url = ROOTPATH . "$name/thread/$threadID/#p$postID";
+    $url = WEBPATH . "$name/thread/$threadID/#p$postID";
 
     header("Location: $url");
     exit;
@@ -132,7 +132,7 @@ function redirectToThread($thread)
     $name = boardIDToName($thread->getBoardID());
     $threadID = $thread->getThreadID();
 
-    $url = ROOTPATH . "$name/thread/$threadID/";
+    $url = WEBPATH . "$name/thread/$threadID/";
 
     header("Location: $url");
     exit;
@@ -140,7 +140,7 @@ function redirectToThread($thread)
 function redirectToBoard($board)
 {
     $name = boardIDToName($board->getBoardID());
-    $url = ROOTPATH . "$name";
+    $url = WEBPATH . "$name";
 
     header("Location: $url");
     exit;
@@ -148,7 +148,7 @@ function redirectToBoard($board)
 function redirectToCatalog($board, $sort, $keyword, $case)
 {
     $name = boardIDToName($board->getBoardID());
-    $url = ROOTPATH . "$name/catalog/";
+    $url = WEBPATH . "$name/catalog/";
 
     $queryParams = http_build_query(['sort' => $sort, 'keyword' => $keyword, 'case' => $case]);
     $url .= '?' . $queryParams;
@@ -159,14 +159,14 @@ function redirectToCatalog($board, $sort, $keyword, $case)
 function redirectToAdmin($board)
 {
     $name = boardIDToName($board->getBoardID());
-    $url = ROOTPATH . "$name/admin";
+    $url = WEBPATH . "$name/admin";
 
     header("Location: $url");
     exit;
 }
 function redirectToHome()
 {
-    $url = ROOTPATH;
+    $url = WEBPATH;
 
     header("Location: $url");
     exit;

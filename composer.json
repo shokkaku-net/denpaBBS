@@ -1,6 +1,5 @@
 {
     "require": {
-        "jenssegers/imagehash": "^0.10.0",
         "duncan3dc/blade": "^4.15"
     }
 }

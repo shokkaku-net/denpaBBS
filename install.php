@@ -344,13 +344,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 
 	}
 }
-
 require 'vendor/autoload.php';
 
-use duncan3dc\Laravel\BladeInstance;
-$blade = new BladeInstance(__DIR__ . "/views", __DIR__ . "/cache");
+use eftec\bladeone\BladeOne;
+$blade = new BladeOne(__DIR__ . '/views', __DIR__ . '/cache');
 
-echo $blade->render("install", [
+echo $blade->run("pages.install", [
 	"conf" => $conf,
 	"status" => $status,
 	"messages" => $messages,

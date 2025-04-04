@@ -28,7 +28,7 @@ return [
     /* this is how long a log in session last for. (1 hour) */
     'sessionLifeTime' => 3600,
     'memoryLimit' => '128M',    // the ammount of memeory denpaBBS can use 
-    'webRootPath' => '/',       // the uri location where the software is found publicly
+    'webRootPath' => '/',       // the uri location where the software is found publicly. slash required
     'domain' => 'example.com',  // doamin of ur site, install will try to get this
 
     // the salt for a site wide secure tripcode and logging in. [note] this code below will be evaluated and saved apon install.

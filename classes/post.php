@@ -369,4 +369,23 @@ class PostDataClass
 
         return null;
     }
+    public function getDrawData($opID = -1)
+    {
+        $data = [
+            'id' => $this->getPostID(),
+            'subject' => $this->getSubject(),
+            'name' => $this->getName(),
+            'time' => date('Y-m-d H:i:s', $this->getUnixTime()),
+            'comment' => $this->getComment(),
+            'email' => $this->getEmail(),
+        ];
+        if ($this->postID == $opID) {
+            $data['isOp'] = true;
+        }
+        $files = $this->getFiles();
+        foreach ($files as $file) {
+            $data['files'][] = $file->getDrawData();
+        }
+        return $data;
+    }
 }

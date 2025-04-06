@@ -638,7 +638,7 @@ class htmlclass
         $this->html .= '
         <!--drawLoginForm()-->
         <center class="loginForm">
-        <form method="POST" action="' . WEBPATH . 'admin" enctype="multipart/form-data">
+        <form method="POST" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="login">
             <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
             <input type="password" id="password" name="password" required>

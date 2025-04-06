@@ -173,7 +173,7 @@ class PostRepoClass implements PostDataRepositoryInterface {
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-            $posts[] =  new PostDataClass($boardConf, $row['name'], $row['email'], $row['subject'], 
+            $posts[$row['postID']] =  new PostDataClass($boardConf, $row['name'], $row['email'], $row['subject'], 
                                      $row['comment'], $row['password'], $row['postTime'], $row['ip'], 
                                      $row['threadID'], $row['postID'], $row['special']);
         }

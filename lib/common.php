@@ -76,6 +76,28 @@ function getBoardListing(bool $getUnlisted = false): array
 
     return $listing;
 }
+function getDrawnBoardListing(bool $getUnlisted = false)
+{
+    $db = DatabaseConnection::getInstance();
+    $listing = [];
+
+    $query = "SELECT boardNameID, config FROM boards";
+    $result = $db->query($query);
+
+    while ($row = $result->fetch_assoc()) {
+        $config = json_decode($row['config'], true);
+        $isUnlisted = $config['unlisted'] ?? false;
+
+        if ($isUnlisted === $getUnlisted) {
+            $listing[] = [
+                'name' => $row['boardNameID'],
+                'url' => WEBPATH . $row['boardNameID']
+            ];
+        }
+    }
+
+    return $listing;
+}
 
 function getAllBoardConfs(): array
 {

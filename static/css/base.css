@@ -25,6 +25,16 @@
 	padding-top: 10px;
 }
 
+/* center things bc <center> depricated */
+#mainForm,
+.footer,
+.theading,
+.theading2,
+.theading3{
+    display: flex;
+    justify-content: center;
+}
+
 /* 
  * below is main css constent elements. you will most likely see this applied on every page.
  */
@@ -74,7 +84,7 @@
     vertical-align: top;
 }
 .reply{
-	display: inline-block;
+    display:inherit;
 	margin-left: 20px; 
 	width: fit-content;
 	padding: 8px; 

@@ -14,7 +14,7 @@
     <!--tell bots its ok to scrape the whole site. disallowing this wont stop bots FYI-->
     <meta name="robots" content="follow,archive">
     <!--board specific stuff-->
-    <title>{{ $title }}</title>
+    <title>{{ $pagetitle }}</title>
     <link rel="stylesheet" type="text/css" href="/static/css/base.css">
     <link rel="stylesheet" type="text/css" href="/static/css/boardStyles/{{ $style }}.css" title="boardcss">
     <link rel="shortcut icon" href="/static/image/iconPacks/{{ $iconpack }}/favicon.png">
@@ -24,11 +24,9 @@
     <script src="/static/js/system/highlight.js" defer></script>
 </head>
 
-<body>
-    <div id="top" />
+<body id="top">
     {!! $slot !!}
-    <div id="bottom" />
-    <div style="text-align: center;">- you are running <a rel="nofollow noreferrer license"
+    <div id="bottom" class="footer">- you are running <a rel="nofollow noreferrer license"
             href="https://github.com/shokkaku-net/denpaBBS" target="_blank">DenpaBBS</a>. a clear and easy to read
         imageboard software -</div>
 </body>

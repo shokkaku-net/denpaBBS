@@ -211,6 +211,15 @@ class FileDataClass
     {
         return WEBPATH . 'threads/' . $this->getThreadID() . '/' . $this->getStoredNameThumb();
     }
+    public function getDrawData()
+    {
+        return [
+            'weblocation' => $this->getWebPath(),
+            'webthumblocation' => $this->getWebPathThumb(),
+            'name' => $this->getFileName(),
+            'size' => $this->getSizeFormated(),
+        ];
+    }
 }
 
 

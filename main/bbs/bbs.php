@@ -19,6 +19,7 @@ require_once BASEDIR . '/classes/repos/repoBan.php';
 //require_once __DIR__ .'/classes/repos/repoFile.php';
 
 require_once BASEDIR . '/lib/common.php';
+require_once BASEDIR . '/lib/pagedrawing.php';
 require_once BASEDIR . '/lib/adminControl.php';
 
 $AUTH = AuthClass::getInstance();
@@ -319,8 +320,8 @@ if (isset($_GET['thread'])) {
     if (is_null($thread)) {
         drawErrorPageAndDie("thread dose not exist");
     }
-
-    $boardHtml->drawThreadPage($thread);
+    drawBoardThread($board, $threadID);
+    //$boardHtml->drawThreadPage($thread);
     return;
 } elseif (isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -382,5 +383,6 @@ if (isset($_GET['thread'])) {
         drawErrorPageAndDie("invalid page");
     }
     $page = abs(intval($page));
-    $boardHtml->drawThreadListingPage($page);
+    drawBoardThreadListing($board, $page);
+    //$boardHtml->drawThreadListingPage($page);
 }

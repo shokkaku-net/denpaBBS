@@ -12,12 +12,21 @@ return [
 
     //these are the hard coded nav links on each page.
     'navLinksLeft' => [
-        'cgi' => 'https://example.com/cgi-bin/',
-        'upload' => 'https://up.example.com/',
+        [
+            'name' => 'cgi',
+            'url' => 'https://example.com/cgi-bin/'
+        ],
+        [
+            'name' => 'upload',
+            'url' => 'https://up.example.com/'
+        ]
         // just copy this format above to add another link.
     ],
     'navLinksRight' => [
-        'wiki' => 'https://wiki.example.com/'
+        [
+            'name' => 'wiki',
+            'url' => 'https://wiki.example.com/'
+        ]
     ],
 
     'fileConf' => [
@@ -37,8 +46,8 @@ return [
     ],
 
     'staticPath' => "/static/",
-    'iconPack' => '/static/image/iconPacks/default',
-    'style' => '/static/css/boardStyles/futaclone.css',  //change this to use ur own css. make sure to update backgroundColor to match post reply background color 
+    'iconPack' => 'default',
+    'style' => 'futaclone',  //change this to use ur own css. make sure to update backgroundColor to match post reply background color 
 
     'enabledModules' => ['Example Module'],
     'unlisted' => true,             // this will only hide your board from the nav bar. [NOTE] new boards wont respect this by defualt. you must explicitly relist your board when creating or after creation.

@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 $baseDir = __DIR__;
 $installFile = $baseDir . '/install.php';
 $configFile = $baseDir . '/conf.php';

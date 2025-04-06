@@ -1,37 +1,20 @@
-<!-- form inputs. loop thu and include diffrent peices as spesified in the formInputs table.
- form[
-    formid = mainForm
-    endpoint
-    formAction
-    method
-    submit slot
-    --nameid board
-    inputs [
-            input = "text" "textarea"
-            id
-            name 
-            properties = 'cols="48" rows="4" maxlength="2048"'
-        ]
-    [
-        'input' => 'button', 
-        'submit' => 'true', 
-        'lable'=> 'name',
-        'properties' => 'name="name" autocomplete="off" ......'
-     ],
-] -->
-
-
-<div style="text-align: center;" id="mainForm">
-    <form id="{{ $data['formID'] }}" action="{{ WEBPATH . $data['endpoint'] }}" method="{{ $data['method'] }}" enctype="multipart/form-data">
-        <input type="hidden" name="action" value="{{ $data['formAction'] }}">
-        <input type="hidden" name="nameID" value="{{ $data['nameID'] }}">
+<div id="mainForm">
+    <form id="{{ $data['formID'] }}" action="{{ $data['endpoint'] }}" method="{{ $data['method'] }}"
+        enctype="multipart/form-data">
+        <input type="hidden" name="action" value="{{ $data['formAction'] }}" form="{{ $data['formID'] }}">
+        <input type="hidden" name="nameID" value="{{ $data['nameID'] }}" form="{{ $data['formID'] }}">
+        @if (isset($data['hidden']))
+            @foreach ($data['hidden'] as $hd)
+                <input type="hidden" form="{{ $data['formID'] }}" name="{{ $hd['name']  }}" value="{{ $hd['value'] }}">
+            @endforeach
+        @endif
         <table>
             @foreach ($data['inputs'] as $idata)
-                @if ($idata['input'] === 'text' || $idata['input'] === 'file' || $idata['input'] === 'checkbox' || $idata['input'] === 'text')
+                @if ($idata['input'] === 'text' || $idata['input'] === 'file' || $idata['input'] === 'checkbox' || $idata['input'] == 'password' || $idata['input'] === 'text')
                     <x-form.wrapper :data="$idata">
                         <x-form.input :data="$idata" :formid="$data['formID']" />
                         @if (isset($idata['submit']))
-                            <button type="submit" form="{{ $formID }}">{{ $idata['submit'] }}</button>
+                            <button type="submit" form="{{ $data['formID'] }}">{{ $idata['submit'] }}</button>
                         @endif
                     </x-form.wrapper>
 

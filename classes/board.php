@@ -105,5 +105,90 @@ class boardClass
 
 		$THREADREPO->archiveOldThreads($this->conf, $maxActiveThreads);
 	}
+	public function getDrawData()
+	{
+		$data = [
+			'title' => [
+				'logo' => $this->getLogoPath(),
+				'title' => $this->getTitle(),
+				'subtitle' => $this->getSubtitle(),
+			],
+			'style' => $this->getStyle(),
+			'iconpack' => $this->getIconpack(),
+			'pagetitle' => $this->getPageTitle(),
+		];
+		$data['navLeft'][] = $this->conf['navLinksLeft'];
+		$data['navRight'][] = $this->conf['navLinksRight'];
+		return $data;
 
+	}
+	public function getThreadsByPage($page)
+	{
+		return $this->repo->loadThreadsByPage($this->conf, $page);
+	}
+	public function getPostPreviwCount()
+	{
+		return $this->conf['postPerThreadListing'];
+	}
+	public function buildPageData($page)
+	{
+
+		$maxThreadsPerPage = $this->conf['threadsPerPage'];
+		$threadCount = $this->repo->getThreadCount($this->conf);
+
+		if ($threadCount >= $this->conf['maxActiveThreads']) {
+			$threadCount = $this->conf['maxActiveThreads'];
+		}
+
+		$pages = (int) ceil($threadCount / $maxThreadsPerPage);
+		$pageData = [];
+
+		$pageData['baseurl'] = WEBPATH . $this->conf['boardNameID'] . '/';
+		$pageData['curPage'] = $page;
+
+		if ($page > 1) {
+			$pageData['prevPage'] = $page - 1;
+			$pageData['startPage'] = 1;
+		} else {
+			$pageData['startPage'] = 1;
+		}
+
+		if ($page < $pages) {
+			$pageData['nextPage'] = $page + 1;
+		}
+
+		$pageData['endPage'] = $pages;
+
+		return $pageData;
+	}
+
+	public function getLogoPath()
+	{
+		return $this->conf['boardLogoPath'];
+	}
+	public function getTitle()
+	{
+		return $this->conf['boardTitle'];
+
+	}
+	public function getSubtitle()
+	{
+		return $this->conf['boardSubTitle'];
+
+	}
+	public function getStyle()
+	{
+		return $this->conf['style'];
+
+	}
+	public function getIconpack()
+	{
+		return $this->conf['iconPack'];
+
+	}
+	public function getPageTitle()
+	{
+		return $this->conf['boardNameID'];
+
+	}
 }

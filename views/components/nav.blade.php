@@ -1,5 +1,5 @@
 @if (!empty($navLeft) || !empty($navRight))
-    <div class="navBar">
+    <nav class="navBar">
         @if (!empty($navLeft))
             <span class="navLeft">
                 @foreach ($navLeft as $grouping)
@@ -41,5 +41,5 @@
                 @endforeach
             </span>
         @endif
-    </div>
+    </nav>
 @endif

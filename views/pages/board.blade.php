@@ -9,16 +9,18 @@
         </div>
     @endif
     <x-title :data="$title" />
-    @if (isset($boardbuttons))
-        <div class="boardbuttons" style="display: flex;">
-            <x-board.buttons :boardbuttons="$boardbuttons" />
-        </div>
-    @endif
-    @if ($mode == "reply")
-        <div class="theading"><b>Posting mode: {{ $mode}}</b></div>
-    @endif
-    <x-base-form :data="$mainform" />
-    <x-board.thread-listing />
+    <main>
+        @if (isset($boardbuttons))
+            <div class="boardbuttons" style="display: flex;">
+                <x-board.buttons :boardbuttons="$boardbuttons" />
+            </div>
+        @endif
+        @if ($mode == "reply")
+            <div class="theading"><b>Posting mode: {{ $mode}}</b></div>
+        @endif
+        <x-base-form :data="$mainform" />
+        <x-board.thread-listing />
+    </main>
 
     <x-button :location="'#top'" :name="'Top'" />
 

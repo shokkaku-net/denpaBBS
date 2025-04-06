@@ -1,4 +1,4 @@
-<div class="boardTitle">
+<header class="boardTitle">
     @if (!empty($data['logo']))
         <img class="logo" src="{{ $data['logo'] }}" \>
     @endif
@@ -8,4 +8,4 @@
     <div class="subtitle">
         {!! $data['subtitle'] !!}
     </div>
-</div>
+</header>

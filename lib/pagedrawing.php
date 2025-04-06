@@ -1,113 +1,109 @@
 <?php
+require __DIR__ . '/internal/pagedrawing.php';
+
 use eftec\bladeone\BladeOne;
+use internal\pagedrawing;
+use function internal\pagedrawing\makeBoardData;
 
 function drawBoardThreadListing($board, $page = 1)
 {
-    $blade = new BladeOne(BASEDIR . '/views', BASEDIR . '/cache', BladeOne::MODE_DEBUG);
+    $data = makeBoardData($board);
     $nameID = $board->getBoardNameID();
 
-
-    $drawData = [];
+    $data['mode'] = 'listing';
+    $data['mainform'] = [
+        'formID' => 'formThread',
+        'endpoint' => WEBPATH . $nameID,
+        'method' => 'POST',
+        'formAction' => 'postNewThread',
+        'nameID' => $nameID,
+        'inputs' => [
+            [
+                'input' => 'text',
+                'id' => 'name',
+                'lable' => 'Name',
+                'name' => 'name',
+                'properties' => 'autocomplete="off" maxlength="127"'
+            ],
+            [
+                'input' => 'text',
+                'id' => 'email',
+                'lable' => 'Email',
+                'name' => 'email',
+                'properties' => 'autocomplete="off" maxlength="127"'
+            ],
+            [
+                'input' => 'text',
+                'id' => 'subject',
+                'lable' => 'Subject',
+                'name' => 'subject',
+                'properties' => 'autocomplete="off" maxlength="127"',
+                'submit' => 'New Thread'
+            ],
+            [
+                'input' => 'textarea',
+                'id' => 'comment',
+                'lable' => 'Comment',
+                'name' => 'comment',
+                'properties' => 'required cols="48" rows="4" maxlength="2048"'
+            ],
+            [
+                'input' => 'file',
+                'id' => 'file',
+                'lable' => 'Files',
+                'name' => 'upfile[]',
+                'properties' => 'required cols="48" rows="4" maxlength="2048" require=""'
+            ],
+            [
+                'input' => 'password',
+                'id' => 'password',
+                'lable' => 'Password',
+                'name' => 'password',
+                'properties' => 'autocomplete="off" maxlength="8"',
+            ],
+        ],
+    ];
+    $data['subform'] = [
+        'formID' => 'postManage',
+        'endpoint' => WEBPATH . $nameID,
+        'method' => 'POST',
+        'formAction' => 'deletePosts',
+        'nameID' => $nameID,
+        'inputs' => [
+            [
+                'input' => 'lable',
+                'lable' => 'Delete Post',
+            ],
+            [
+                'input' => 'checkbox',
+                'name' => 'fileOnly',
+                'value' => 'on',
+                'lable' => 'File only'
+            ],
+            [
+                'input' => 'br'
+            ],
+            [
+                'input' => 'lable',
+                'lable' => 'Password',
+            ],
+            [
+                'input' => 'password',
+                'submit' => 'delete',
+            ]
+        ]
+    ];
 
     $threadData = $board->getThreadsByPage($page);
 
     foreach ($threadData as $thread) {
-        $drawData['threads'][] = $thread->getDrawData($board->getPostPreviwCount());
+        $data['threads'][] = $thread->getDrawData($board->getPostPreviwCount());
     }
-    $drawData = array_merge($drawData, [
-        'boardbuttons' => [
-            [
-                'type' => 'button',
-                'name' => 'Bottom',
-                'location' => "#bottom",
-            ],
-            [
-                'type' => 'button',
-                'name' => 'Catalog',
-                'location' => WEBPATH . $nameID . "/catalog",
-            ],
-        ],
-        'mode' => 'listing',
-        'mainform' => [
-            'formID' => 'formThread',
-            'endpoint' => WEBPATH . $nameID,
-            'method' => 'POST',
-            'formAction' => 'postNewThread',
-            'nameID' => $nameID,
-            'inputs' => [
-                [
-                    'input' => 'text',
-                    'id' => 'name',
-                    'lable' => 'Name',
-                    'name' => 'name',
-                    'properties' => 'autocomplete="off" maxlength="127"'
-                ],
-                [
-                    'input' => 'text',
-                    'id' => 'email',
-                    'lable' => 'Email',
-                    'name' => 'email',
-                    'properties' => 'autocomplete="off" maxlength="127"'
-                ],
-                [
-                    'input' => 'text',
-                    'id' => 'subject',
-                    'lable' => 'Subject',
-                    'name' => 'subject',
-                    'properties' => 'autocomplete="off" maxlength="127"',
-                    'submit' => 'New Thread'
-                ],
-                [
-                    'input' => 'textarea',
-                    'id' => 'comment',
-                    'lable' => 'Comment',
-                    'name' => 'comment',
-                    'properties' => 'required cols="48" rows="4" maxlength="2048"'
-                ],
-                [
-                    'input' => 'file',
-                    'id' => 'file',
-                    'lable' => 'Files',
-                    'name' => 'upfile[]',
-                    'properties' => 'required cols="48" rows="4" maxlength="2048" require=""'
-                ],
-                [
-                    'input' => 'password',
-                    'id' => 'password',
-                    'lable' => 'Password',
-                    'name' => 'password',
-                    'properties' => 'autocomplete="off" maxlength="8"',
-                ],
-            ],
-        ],
-    ]);
-    $drawData['paging'] = $board->buildPageData($page);
-    $drawData['navLeft'][] = getDrawnBoardListing();
 
+    $data['paging'] = $board->buildPageData($page);
 
-    $boardData = $board->getDrawData();
-    $drawData = array_merge($drawData, array_diff_key($boardData, ['navLeft' => 1, 'navRight' => 1]));
-
-    // merge navLeft properly
-    $drawData['navLeft'] = array_merge(
-        $drawData['navLeft'] ?? [],
-        $boardData['navLeft'] ?? []
-    );
-
-    // merge navRight properly
-    $drawData['navRight'] = array_merge(
-        $drawData['navRight'] ?? [],
-        $boardData['navRight'] ?? []
-    );
-
-    $drawData['navRight'][] = [
-        [
-            'name' => 'admin',
-            'url' => WEBPATH . $nameID . '/admin'
-        ],
-    ];
-
-    echo $blade->run("pages.board", $drawData);
+    $blade = new BladeOne(BASEDIR . '/views', BASEDIR . '/cache', BladeOne::MODE_DEBUG);
+    echo $blade->run("pages.board", $data);
     /*
     $adminBar = [
         'adminbar' => [
@@ -149,113 +145,106 @@ function drawBoardThreadListing($board, $page = 1)
 
 function drawBoardThread($board, $threadID)
 {
-    $blade = new BladeOne(BASEDIR . '/views', BASEDIR . '/cache', BladeOne::MODE_DEBUG);
+    $data = makeBoardData($board);
     $nameID = $board->getBoardNameID();
 
-    $drawData = [];
-
-    $threadData = $board->getThreadByID($threadID);
-    $drawData['threads'][] = $threadData->getDrawData();
-
-    $drawData = array_merge($drawData, [
-        'boardbuttons' => [
+    $data['mode'] = 'reply';
+    $data['mainform'] = [
+        'formID' => 'postToThread',
+        'endpoint' => WEBPATH . $nameID,
+        'method' => 'POST',
+        'formAction' => 'postToThread',
+        'nameID' => $nameID,
+        'hidden' => [
             [
-                'type' => 'button',
-                'name' => 'Bottom',
-                'location' => "#bottom",
-            ],
-            [
-                'type' => 'button',
-                'name' => 'Catalog',
-                'location' => WEBPATH . $nameID . "/catalog",
+                'name' => 'threadID',
+                'value' => $threadID,
             ],
         ],
-        'mode' => 'reply',
-        'mainform' => [
-            'formID' => 'postToThread',
-            'endpoint' => WEBPATH . $nameID,
-            'method' => 'POST',
-            'formAction' => 'postToThread',
-            'nameID' => $nameID,
-            'hidden' => [
-                [
-                    'name' => 'threadID',
-                    'value' => $threadID,
-                ],
+        'inputs' => [
+            [
+                'input' => 'text',
+                'id' => 'name',
+                'lable' => 'Name',
+                'name' => 'name',
+                'properties' => 'autocomplete="off" maxlength="127"'
             ],
-            'inputs' => [
-                [
-                    'input' => 'text',
-                    'id' => 'name',
-                    'lable' => 'Name',
-                    'name' => 'name',
-                    'properties' => 'autocomplete="off" maxlength="127"'
-                ],
-                [
-                    'input' => 'text',
-                    'id' => 'email',
-                    'lable' => 'Email',
-                    'name' => 'email',
-                    'properties' => 'autocomplete="off" maxlength="127"'
-                ],
-                [
-                    'input' => 'text',
-                    'id' => 'subject',
-                    'lable' => 'Subject',
-                    'name' => 'subject',
-                    'properties' => 'autocomplete="off" maxlength="127"',
-                    'submit' => 'New Post'
-                ],
-                [
-                    'input' => 'textarea',
-                    'id' => 'comment',
-                    'lable' => 'Comment',
-                    'name' => 'comment',
-                    'properties' => 'required cols="48" rows="4" maxlength="2048"'
-                ],
-                [
-                    'input' => 'file',
-                    'id' => 'file',
-                    'lable' => 'Files',
-                    'name' => 'upfile[]',
-                    'properties' => 'cols="48" rows="4" maxlength="2048" require=""'
-                ],
-                [
-                    'input' => 'password',
-                    'id' => 'password',
-                    'lable' => 'Password',
-                    'name' => 'password',
-                    'properties' => 'autocomplete="off" maxlength="8"',
-                ],
+            [
+                'input' => 'text',
+                'id' => 'email',
+                'lable' => 'Email',
+                'name' => 'email',
+                'properties' => 'autocomplete="off" maxlength="127"'
             ],
-        ],
-    ]);
-    $drawData['navLeft'][] = getDrawnBoardListing();
-
-
-    $boardData = $board->getDrawData();
-    $drawData = array_merge($drawData, array_diff_key($boardData, ['navLeft' => 1, 'navRight' => 1]));
-
-    // merge navLeft properly
-    $drawData['navLeft'] = array_merge(
-        $drawData['navLeft'] ?? [],
-        $boardData['navLeft'] ?? []
-    );
-
-    // merge navRight properly
-    $drawData['navRight'] = array_merge(
-        $drawData['navRight'] ?? [],
-        $boardData['navRight'] ?? []
-    );
-
-    $drawData['navRight'][] = [
-        [
-            'name' => 'admin',
-            'url' => WEBPATH . $nameID . '/admin'
+            [
+                'input' => 'text',
+                'id' => 'subject',
+                'lable' => 'Subject',
+                'name' => 'subject',
+                'properties' => 'autocomplete="off" maxlength="127"',
+                'submit' => 'New Post'
+            ],
+            [
+                'input' => 'textarea',
+                'id' => 'comment',
+                'lable' => 'Comment',
+                'name' => 'comment',
+                'properties' => 'required cols="48" rows="4" maxlength="2048"'
+            ],
+            [
+                'input' => 'file',
+                'id' => 'file',
+                'lable' => 'Files',
+                'name' => 'upfile[]',
+                'properties' => 'cols="48" rows="4" maxlength="2048" require=""'
+            ],
+            [
+                'input' => 'password',
+                'id' => 'password',
+                'lable' => 'Password',
+                'name' => 'password',
+                'properties' => 'autocomplete="off" maxlength="8"',
+            ],
         ],
     ];
 
-    echo $blade->run("pages.board", $drawData);
+
+    $data['subform'] = [
+        'formID' => 'postManage',
+        'endpoint' => WEBPATH . $nameID,
+        'method' => 'POST',
+        'formAction' => 'deletePosts',
+        'nameID' => $nameID,
+        'inputs' => [
+            [
+                'input' => 'lable',
+                'lable' => 'Delete Post',
+            ],
+            [
+                'input' => 'checkbox',
+                'name' => 'fileOnly',
+                'value' => 'on',
+                'lable' => 'File only'
+            ],
+            [
+                'input' => 'br'
+            ],
+            [
+                'input' => 'lable',
+                'lable' => 'Password',
+            ],
+            [
+                'input' => 'password',
+                'submit' => 'delete',
+            ]
+        ]
+    ];
+
+    $threadData = $board->getThreadByID($threadID);
+    $data['threads'][] = $threadData->getDrawData();
+
+    $blade = new BladeOne(BASEDIR . '/views', BASEDIR . '/cache', BladeOne::MODE_DEBUG);
+    echo $blade->run("pages.board", $data);
     exit;
 
 }

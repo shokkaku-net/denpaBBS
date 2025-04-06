@@ -1,6 +1,6 @@
 <tr>
     <td class="accent">
-        <label for="{{ $data['id'] ?? 'input' }}">
+        <label {{ !empty($data['id']) ? 'for="' . $data['id'] . '"' : '' }}>
             {{ $data['lable'] ?? 'Input' }}
         </label>
     </td>

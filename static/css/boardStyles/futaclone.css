@@ -6,7 +6,7 @@ body {
 }
 
 /* add separators to page */
-#mainForm,
+.mainForm,
 .boardTitle,
 .thread{
 	border-bottom: 1px solid #000;

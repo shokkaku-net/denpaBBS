@@ -17,8 +17,9 @@
         width: 73%;
     }
 }
+
 /* add separators to page */
-#mainForm,
+.mainForm,
 .boardTitle,
 .thread{
 	padding-bottom: 10px;
@@ -26,13 +27,19 @@
 }
 
 /* center things bc <center> depricated */
-#mainForm,
+.mainForm,
 .footer,
 .theading,
 .theading2,
 .theading3{
     display: flex;
     justify-content: center;
+}
+
+.subform {
+    display: block;
+    width: fit-content; 
+    margin-left: auto;
 }
 
 /* 
@@ -155,7 +162,7 @@
     overflow:scroll; 
     max-height: 200px;
 }
-#mainForm details{
+.mainForm details{
     text-wrap: auto;
     max-width: 400px;
     line-height: 120%;

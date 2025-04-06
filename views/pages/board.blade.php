@@ -22,7 +22,9 @@
         <x-board.thread-listing />
     </main>
 
-    <x-button :location="'#top'" :name="'Top'" />
+    <div class="bottomButtons">
+        <x-button :location="'#top'" :name="'Top'" />
+    </div>
 
     @if (isset($paging))
         <x-paging :paging="$paging" />

@@ -26,7 +26,7 @@
 
 <body id="top">
     {!! $slot !!}
-    <div id="bottom" class="footer">- you are running <a rel="nofollow noreferrer license"
+    <footer id="bottom" class="footer">- you are running <a rel="nofollow noreferrer license"
             href="https://github.com/shokkaku-net/denpaBBS" target="_blank">DenpaBBS</a>. a clear and easy to read
-        imageboard software -</div>
+        imageboard software -</footer>
 </body>

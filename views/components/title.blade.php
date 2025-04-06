@@ -5,7 +5,7 @@
     <h1 class="title">
         {!! $data['title'] !!}
     </h1>
-    <h5 class="subtitle">
+    <div class="subtitle">
         {!! $data['subtitle'] !!}
-    </h5>
+    </div>
 </div>

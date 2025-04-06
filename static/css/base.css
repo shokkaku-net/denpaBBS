@@ -25,7 +25,12 @@
 	padding-bottom: 10px;
 	padding-top: 10px;
 }
-
+.subtitle {
+    font-size: 0.83em;
+    font-weight: bold;
+    margin-top: 1.67em;
+    margin-bottom: 1.67em;
+}
 /* center things bc <center> depricated */
 .mainForm,
 .footer,

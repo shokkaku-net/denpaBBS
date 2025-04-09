@@ -94,35 +94,34 @@ function deleteThread($thread)
     foreach ($thread->getPosts() as $post) {
         deletePost($post, true);
     }
-    $THREADREPO->deleteThreadByID($thread->getConf(), $thread->getThreadID());
+    $THREADREPO->deleteThreadByID($thread->getConf()['boardID'], $thread->getThreadID());
 }
 function deletePost($post, $isDeletingThread = false)
 {
     $THREADREPO = ThreadRepoClass::getInstance();
-    $thread = $THREADREPO->loadThreadByID($post->getConf(), $post->getThreadID());
+    $thread = $THREADREPO->loadThreadByID($post->getBoardID(), $post->getThreadID());
     if ($post->getPostID() == $thread->getOPPostID() && $isDeletingThread == false) {
         deleteThread($thread);
         return;
     } else {
-        $conf = $post->getConf();
         foreach ($post->getFiles() as $file) {
             deleteFile($file);
         }
         $POSTREPO = PostRepoClass::getInstance();
-        $POSTREPO->deletePostByID($conf, $post->getPostID());
+        $POSTREPO->deletePostByID($post->getBoardID(), $post->getPostID());
     }
 }
 function updatePost($post)
 {
     $POSTREPO = PostRepoClass::getInstance();
-    $POSTREPO->updatePost($post->getConf(), $post);
+    $POSTREPO->updatePost($post->getId(), $post);
 }
 function editPost($post, $newComment)
 {
     $POSTREPO = PostRepoClass::getInstance();
 
     $post->setComment($newComment);
-    $POSTREPO->updatePost($post->getConf(), $post);
+    $POSTREPO->updatePost($post->getBoardID(), $post);
 }
 function deleteFile($file)
 {
@@ -148,13 +147,13 @@ function moveTreadToNewBoard($thread, $newBoardID)
     $srcPosts = $thread->getPosts();
     foreach ($srcPosts as $post) {
         // we are using the dest board for configs. this has board id in it.
-        $POSTREPO->createPost($destBoard->getConf(), $post);
+        $POSTREPO->createPost($destBoard->getId(), $post);
         //make sure to add files to new posts.
     }
     //new board means new post ids for posts.
     $thread->setOPPostID($srcPosts[0]->getPostID);
     //thread's uniqe id is the same just need to update its board id.
-    $THREADREPO->updateThread($destBoard->getConf(), $thread);
+    $THREADREPO->updateThread($destBoard->getConf()['boardID'], $thread);
 
     // files should still be same link :P
 

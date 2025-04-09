@@ -54,7 +54,7 @@ class BoardRepoClass
     public function updateBoard(boardClass $board): bool
     {
         $conf = $board->getConf();
-        $boardID = $board->getBoardID();
+        $boardID = $board->getId();
         $boardNameID = $conf['boardNameID'] ?? 'unknown';
         $jsonConf = json_encode($conf, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         $lastPostID = $board->getLastPostID();
@@ -113,7 +113,7 @@ class BoardRepoClass
         $board = new boardClass((int) $row['boardID'], (int) $row['lastPostID']);
         $board->setConf($conf);
         $board->boardNameID = $row['boardNameID'];
-        $this->loadedBoards[$board->getBoardID()] = $board;
+        $this->loadedBoards[$board->getId()] = $board;
 
         return $board;
     }
@@ -129,7 +129,7 @@ class BoardRepoClass
             $board = new boardClass($row['boardID'], (int) $row['lastPostID']);
             $board->setConf($conf);
             $boards[] = $board;
-            $this->loadedBoards[$board->getBoardID()] = $board;
+            $this->loadedBoards[$board->getId()] = $board;
         }
 
         return $boards;

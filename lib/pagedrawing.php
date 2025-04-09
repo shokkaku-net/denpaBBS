@@ -8,7 +8,7 @@ use function internal\pagedrawing\makeBoardData;
 function drawBoardThreadListing($board, $page = 1)
 {
     $data = makeBoardData($board);
-    $nameID = $board->getBoardNameID();
+    $nameID = $board->getNameID();
 
     $data['mode'] = 'listing';
     $data['mainform'] = [
@@ -146,7 +146,7 @@ function drawBoardThreadListing($board, $page = 1)
 function drawBoardThread($board, $threadID)
 {
     $data = makeBoardData($board);
-    $nameID = $board->getBoardNameID();
+    $nameID = $board->getNameID();
 
     $data['mode'] = 'reply';
     $data['mainform'] = [

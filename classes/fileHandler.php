@@ -56,7 +56,7 @@ class fileHandlerClass
             }
 
             $md5 = md5_file($tmpName);
-            if ($BANREPO->isFileBanned(getBoardFromRequest()->getBoardID(), $md5, false)) {
+            if ($BANREPO->isFileBanned(getBoardFromRequest()->getId(), $md5, false)) {
                 drawErrorPageAndDie("banned file uploaded");
             }
 

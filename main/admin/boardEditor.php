@@ -13,7 +13,7 @@ if (!$board) {
     exit;
 }
 
-if (!$AUTH->isAdmin($board->getBoardID())) {
+if (!$AUTH->isAdmin($board->getId())) {
     http_response_code(403);
     echo "403 Forbidden: You are not an admin of this board.";
     exit;
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     BoardRepoClass::getInstance()->updateBoard($board);
 
     echo '<div class="postblock">Config updated successfully. Redirecting back to board...</div>';
-    echo '<meta http-equiv="refresh" content="2;url=/' . htmlspecialchars($board->getBoardNameID()) . '/">';
+    echo '<meta http-equiv="refresh" content="2;url=/' . htmlspecialchars($board->getNameID()) . '/">';
     exit;
 }
 
@@ -51,7 +51,7 @@ $currentJson = json_encode($board->getConf(), JSON_UNESCAPED_UNICODE | JSON_UNES
 
 <body>
     <div class="postblock">
-        <h2>Edit Config for /<?= htmlspecialchars($board->getBoardNameID()) ?>/</h2>
+        <h2>Edit Config for /<?= htmlspecialchars($board->getNameID()) ?>/</h2>
         <form method="post">
             <textarea name="configJson" rows="30" cols="100"><?= htmlspecialchars($currentJson) ?></textarea><br><br>
             <button type="submit">Save Changes</button>

@@ -225,7 +225,7 @@ function postResolve($conf, $postID)
 {
     $POSTREPO = PostRepoClass::getInstance();
     $boardName = boardIDToName($conf['boardID']);
-    $post = $POSTREPO->loadPostByID($conf, $postID);
+    $post = $POSTREPO->loadPostByID($conf['boardID'], $postID);
     if (is_null($post)) {
         return "#";
     }

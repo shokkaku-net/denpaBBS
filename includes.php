@@ -16,6 +16,7 @@ if ($globalConf['debug'] == true) {
 
 define("MAX_INPUT_LENGTH", 255 - 128); /* you cant make this bigger then 255 with out changing the cap to to the db */
 define("MAX_INPUT_LENGTH_PASSWORD", 16 - 8); /* you cant make this bigger then 16 with out changing the cap to to the db */
+define("MAX_TOTAL_FILE_SIZES", $globalConf['MAX_TOTAL_FILE_SIZES']);
 
 define("IMAGE_EXTENTIONS", $globalConf['IMAGE_EXTENTIONS']);
 define("VIDEO_EXTENTIONS", $globalConf['VIDEO_EXTENTIONS']);

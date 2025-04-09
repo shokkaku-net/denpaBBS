@@ -76,7 +76,7 @@ function userLoggingIn()
     /*
      *  try loggin in as what ever user it is.
      */
-    $AUTH->setRoleByHash($passHash, $board->getBoardID());
+    $AUTH->setRoleByHash($passHash, $board->getId());
     logAudit($board, $AUTH->getName() . " has logged in as a " . $AUTH);
     if ($noBoard) {
         goToRealboard();
@@ -160,7 +160,7 @@ function banPost()
     /*
      *  this looks so ugly...
      */
-    $post = $POSTREPO->loadPostByID($board->getConf(), $_POST['postID']);
+    $post = $POSTREPO->loadPostByID($board->getId(), $_POST['postID']);
     $isBanForerver = isset($_POST['banForever']) ? true : false;
     $isBanFile = isset($_POST['banFile']) ? true : false;
     $isBanDomain = isset($_POST['banDomain']) ? true : false;
@@ -196,18 +196,18 @@ function banPost()
 
     //ban ip
     if ($isBanIP) {
-        $BANREPO->banIP($board->getBoardID(), $ip, $banReason, $expireTime, $rangeBan, $isGlobal, $isPublic, $category);
+        $BANREPO->banIP($board->getId(), $ip, $banReason, $expireTime, $rangeBan, $isGlobal, $isPublic, $category);
         $banText .= " is IP banned untill " . $expireTime . ".";
     }
     //ban domain
     if ($isBanDomain) {
-        $BANREPO->banDomain($board->getBoardID(), $domain, $banReason, $isGlobal, $isPublic, $category);
+        $BANREPO->banDomain($board->getId(), $domain, $banReason, $isGlobal, $isPublic, $category);
         $banText .= " domain has been banned.";
     }
     //ban file
     if ($isBanFile) {
         foreach ($post->getFiles() as $file) {
-            $BANREPO->banFile($board->getBoardID(), $file->getMD5(), $banReason, false, $isGlobal, $isPublic, $category);
+            $BANREPO->banFile($board->getId(), $file->getMD5(), $banReason, false, $isGlobal, $isPublic, $category);
         }
         $banText .= " files has been banned.";
     }
@@ -230,7 +230,7 @@ function userPostListing()
     global $board;
     global $boardHtml;
     $page = 0;
-    $posts = $POSTREPO->loadPostsByPage($board->getConf(), $page);
+    $posts = $POSTREPO->loadPostsByPage($board->getId(), $page);
 
     $boardHtml->drawAdminPostListingPage($posts);
     exit();
@@ -283,7 +283,7 @@ if (isset($_POST['action'])) {
             break;
         case 'deleteBoard':
             $id = userDeletingBoard();
-            if ($id == $board->getBoardID()) {
+            if ($id == $board->getId()) {
                 redirectToHome();
             } else {
                 redirectToAdmin($board);
@@ -318,7 +318,7 @@ if (isset($_POST['action'])) {
                 drawErrorPageAndDie("not a valid post id");
             }
             $POSTREPO = PostRepoClass::getInstance();
-            $post = $POSTREPO->loadPostByID($board->getConf(), $postID);
+            $post = $POSTREPO->loadPostByID($board->getId(), $postID);
             if (is_null($post)) {
                 drawErrorPageAndDie("can not find post");
             }

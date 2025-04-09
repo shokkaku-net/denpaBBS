@@ -1,27 +1,35 @@
 <?php
-require_once  __DIR__ .'/DBConnection.php';
-require_once  __DIR__ .'/interfaces.php';
-require_once __DIR__ .'/../post.php';
-require_once __DIR__ .'/../../lib/common.php';
+require_once __DIR__ . '/DBConnection.php';
+require_once __DIR__ . '/../post.php';
+require_once __DIR__ . '/../../lib/common.php';
 
-class FileRepoClass implements FileRepositoryInterface {
-    private function __clone() {}
-    public function __wakeup() { throw new Exception("Unserialization of AuthClass instances is not allowed.");}
+class FileRepoClass
+{
+    private function __clone()
+    {
+    }
+    public function __wakeup()
+    {
+        throw new Exception("Unserialization of AuthClass instances is not allowed.");
+    }
 
     private $db;
     private static $instance = null;
 
-    private function __construct() {
+    private function __construct()
+    {
         $this->db = DatabaseConnection::getInstance();
     }
 
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
             self::$instance = new FileRepoClass();
         }
         return self::$instance;
     }
-    public function isDuplicateFile($boardConf, $md5) {
+    public function isDuplicateFile($boardConf, $md5)
+    {
         $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM files WHERE md5 = ? AND boardID = ? LIMIT 1");
         $stmt->bind_param("si", $md5, $boardConf['boardID']);
         $stmt->execute();
@@ -29,10 +37,11 @@ class FileRepoClass implements FileRepositoryInterface {
         $row = $result->fetch_assoc();
         $count = $row['count'];
         $stmt->close();
-    
+
         return $count > 0;
     }
-    public function createFile($boardConf, $file) {
+    public function createFile($boardConf, $file)
+    {
         global $globalConf;
 
         $threadID = $file->getThreadID();
@@ -51,7 +60,8 @@ class FileRepoClass implements FileRepositoryInterface {
         $stmt->close();
         return true;
     }
-    public function loadFilesByPostID($boardConf, $postID) {
+    public function loadFilesByPostID($boardConf, $postID)
+    {
         global $globalConf;
 
         $query = "SELECT * FROM files WHERE boardID = ? and postID = ?";
@@ -61,13 +71,14 @@ class FileRepoClass implements FileRepositoryInterface {
         $result = $stmt->get_result();
         $files = [];
         while ($row = $result->fetch_assoc()) {
-            $file = new FileDataClass($boardConf, $globalConf['threadsDir']. $row['filePath'], $row['fileName'], $row['md5'], $row['fileID'], $row['postID'], $row['threadID']);
+            $file = new FileDataClass($boardConf, $globalConf['threadsDir'] . $row['filePath'], $row['fileName'], $row['md5'], $row['fileID'], $row['postID'], $row['threadID']);
             $files[] = $file;
         }
         $stmt->close();
         return $files;
     }
-    public function loadFilesByThreadID($boardConf, $threadID) {
+    public function loadFilesByThreadID($boardConf, $threadID)
+    {
         global $globalConf;
 
         $query = "SELECT * FROM files WHERE boardID = ? and threadID = ?";
@@ -77,13 +88,14 @@ class FileRepoClass implements FileRepositoryInterface {
         $result = $stmt->get_result();
         $files = [];
         while ($row = $result->fetch_assoc()) {
-            $file = new FileDataClass($boardConf, $globalConf['threadsDir']. $row['filePath'], $row['fileName'], $row['md5'], $row['fileID'], $row['postID'], $row['threadID']);
+            $file = new FileDataClass($boardConf, $globalConf['threadsDir'] . $row['filePath'], $row['fileName'], $row['md5'], $row['fileID'], $row['postID'], $row['threadID']);
             $files[] = $file;
         }
         $stmt->close();
         return $files;
     }
-    public function updateFile($boardConf, $file) {
+    public function updateFile($boardConf, $file)
+    {
         global $globalConf;
 
         // why is sqli like this...
@@ -97,15 +109,22 @@ class FileRepoClass implements FileRepositoryInterface {
                                         fileName = ?, md5 = ?
                                     WHERE fileID = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("iiisssi",
-                                        $boardConf['boardID'], $threadID, $postID, $filePath, 
-                                        $fileName, $md5,
-                                    $fileID);
+        $stmt->bind_param(
+            "iiisssi",
+            $boardConf['boardID'],
+            $threadID,
+            $postID,
+            $filePath,
+            $fileName,
+            $md5,
+            $fileID
+        );
         $success = $stmt->execute();
         $stmt->close();
         return $success;
     }
-    public function deleteFileByID($fileID) {
+    public function deleteFileByID($fileID)
+    {
         $query = "DELETE FROM files WHERE fileID = ?";
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("i", $fileID);

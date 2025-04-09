@@ -5,11 +5,12 @@
 require_once BASEDIR . '/classes/board.php';
 require_once BASEDIR . '/classes/thread.php';
 require_once BASEDIR . '/classes/post.php';
-require_once BASEDIR . '/classes/file.php';
+//require_once BASEDIR . '/classes/file.php';
 
 require_once BASEDIR . '/classes/hook.php';
 require_once BASEDIR . '/classes/auth.php';
-require_once BASEDIR . '/classes/fileHandler.php';
+require_once BASEDIR . '/classes/media.php';
+//require_once BASEDIR . '/classes/fileHandler.php';
 require_once BASEDIR . '/classes/html.php';
 
 require_once BASEDIR . '/classes/repos/repoBoard.php';
@@ -19,6 +20,7 @@ require_once BASEDIR . '/classes/repos/repoBan.php';
 //require_once __DIR__ .'/classes/repos/repoFile.php';
 
 require_once BASEDIR . '/lib/common.php';
+require_once BASEDIR . '/lib/requestHelper.php';
 require_once BASEDIR . '/lib/pagedrawing.php';
 require_once BASEDIR . '/lib/adminControl.php';
 
@@ -29,11 +31,26 @@ $THREADREPO = ThreadRepoClass::getInstance();
 $BOARDREPO = BoardRepoClass::getInstance();
 $BANREPO = BanRepoClass::getInstance();
 
-function applyPostFilters($post)
+// just assume it all works...
+function registerNewData($boardID, $thread, $post): void
+{
+    global $POSTREPO;
+    global $THREADREPO;
+
+    $POSTREPO->createPost($boardID, $post);
+    if ($thread->getId() == -1) {
+        $THREADREPO->createThread($boardID, $thread, $post);
+    } else {
+        $THREADREPO->updateThread($boardID, $thread);
+    }
+    $post->setThreadID($thread->getId());
+    $POSTREPO->updatePost($boardID, $post);
+    $post->addFilesToRepo();
+}
+function applyPostFilters($post, $conf)
 {
     global $HOOK;
     global $BANREPO;
-    $conf = $post->getConf();
     $post->stripHtml();
 
     $domains = extractUniqueDomainsFromComment($post->getComment());
@@ -76,7 +93,28 @@ function applyPostFilters($post)
     // stuff like bb code, emotes, capcode, ID, should all be handled in moduels.
     $HOOK->executeHook("filtersAppliedToPost", $post);// HOOK post with html fully loaded
 }
-function genUserPostFromRequest($conf, $thread, $isOp = false)
+function genFilesFromRequest(array $filesData): array
+{
+    $files = [];
+
+    foreach ($filesData['tmp_name'] as $i => $tmpPath) {
+        if (!is_uploaded_file($tmpPath) || $filesData['error'][$i] !== UPLOAD_ERR_OK) {
+            continue;
+        }
+
+        $mime = mime_content_type($tmpPath);
+        $md5 = md5_file($tmpPath);
+        $size = $filesData['size'][$i];
+
+        $media = new MediaDataClass($md5, $tmpPath, $mime, $size);
+        $file = new FileDataClass($filesData['name'][$i], $media);
+
+        $files[] = $file;
+    }
+
+    return $files;
+}
+function genUserPostFromRequest($conf, $boardID, $isOp = false): PostDataClass
 {
     global $AUTH;
     global $HOOK;
@@ -115,7 +153,7 @@ function genUserPostFromRequest($conf, $thread, $isOp = false)
     setrawcookie('password', rawurlencode($password), time() + $conf['cookieExpireTime']);
 
     $post = new PostDataClass(
-        $conf,
+        $boardID,
         $name,
         $email,
         $subject,
@@ -123,43 +161,51 @@ function genUserPostFromRequest($conf, $thread, $isOp = false)
         $password,
         time(),
         $_SERVER['REMOTE_ADDR'],
-        $thread->getThreadID()
     );
     // make sure stuff dose not blow over the db limits
-    $post->validate();
+    $post->validate($conf);
 
-    // get the uploaded files and put them inside the post object.
-    $fileHandler = new fileHandlerClass($conf);
-    $uploadFiles = $fileHandler->getFilesFromPostRequest();
-    $procssedFiles = $fileHandler->procssesFiles($uploadFiles, $isOp);
 
-    foreach ($procssedFiles as $file) {
-        $post->addFile($file);
+    /* 
+     * file upload stuff 
+     */
+    $files = [];
+    $fileCount = countRequestedFiles($_FILES['upfile']);
+    if (
+        $conf['postMustHaveFileOrComment'] &&
+        ($post->getComment() == $conf['defaultComment'] || $post->getComment() == "") &&
+        $fileCount == 0
+    ) {
+        drawErrorPageAndDie("you must have a file or comment");
     }
+    if ((($isOp && $conf['opMustHaveFile']) || $conf['requireFile']) && $fileCount == 0) {
+        drawErrorPageAndDie("you must have a file");
+    }
+    if ($fileCount > 0) {
 
-    $noFilesUploaded = count($procssedFiles) <= 0;
-    if ($conf['requireFile'] && $noFilesUploaded) {
-        // Check for rejected files
-        if (count($uploadFiles) !== count($procssedFiles)) {
-            drawErrorPageAndDie("some uploaded files were rejected due to being invalid or disallowed");
+        if ($fileCount > $conf['fileConf']['maxFiles']) {
+            drawErrorPageAndDie("to many files uploaded");
         }
-        drawErrorPageAndDie("a file is required");
-    }
-    if ($conf['opMustHaveFile'] && $isOp && $noFilesUploaded) {
-        // Check for rejected files
-        if (count($uploadFiles) !== count($procssedFiles)) {
-            drawErrorPageAndDie("some uploaded files were rejected due to being invalid or disallowed");
+        if (getTotalRequestedFileSize($_FILES['upfile']) > MAX_TOTAL_FILE_SIZES) {
+            drawErrorPageAndDie("total file size is to big, software wide!");
         }
-        drawErrorPageAndDie("you must have a file as OP");
-    }
-    if ($conf['postMustHaveFileOrComment'] && $noFilesUploaded && ($comment == $conf['defaultComment'] || $comment == "")) {
-        // Check for rejected files
-        if (count($uploadFiles) !== count($procssedFiles)) {
-            drawErrorPageAndDie("some uploaded files were rejected due to being invalid or disallowed");
-        }
-        drawErrorPageAndDie("you must have a file or a comment");
-    }
 
+        $files = genFilesFromRequest($_FILES['upfile']);
+        //drawErrorPageAndDie($files[0]);
+
+        if (count($files) == 0) {
+            drawErrorPageAndDie("files are required. 0 where provided");
+        }
+
+        $passed = [];
+        foreach ($files as $file) {
+            if ($file->validate($conf['fileConf'])) {
+                $passed[] = $file;
+            }
+        }
+        $files = $passed;
+    }
+    $post->setFiles($files);
 
     //if the board lets you tripcode, apply tripcode to name.
     if ($conf['canTripcode']) {
@@ -176,7 +222,7 @@ function genUserPostFromRequest($conf, $thread, $isOp = false)
      */
     $skipEmbedding = false;
 
-    if ($AUTH->isAdmin($conf['boardID']) || $AUTH->isModerator($conf['boardID'])) {
+    if ($AUTH->isAdmin($boardID) || $AUTH->isModerator($boardID)) {
         if (isset($_POST['embedingHTML'])) {
             $skipEmbedding = true;
         }
@@ -185,7 +231,7 @@ function genUserPostFromRequest($conf, $thread, $isOp = false)
     // word filters. aka a bunch of SED
     // moduels might have there own filters to add too.
     if ($skipEmbedding == false) {
-        applyPostFilters($post);
+        applyPostFilters($post, $conf);
     }
 
     return $post;
@@ -193,13 +239,7 @@ function genUserPostFromRequest($conf, $thread, $isOp = false)
 function userPostNewPostToThread($board)
 {
     $conf = $board->getConf();
-    global $POSTREPO;
-    global $THREADREPO;
-    global $BANREPO;
 
-    if ($BANREPO->isIpBanned($board->getBoardID(), $_SERVER['REMOTE_ADDR'])) {
-        drawErrorPageAndDie("you are banned");
-    }
     // load existing thread
     $thread = $board->getThreadByID($_POST['threadID']);
     if (is_null($thread)) {
@@ -210,54 +250,30 @@ function userPostNewPostToThread($board)
     }
 
     // create post to thread
-    $post = genUserPostFromRequest($conf, $thread);
+    $post = genUserPostFromRequest($conf, $board->getId());
 
     if ($post->isBumpingThread()) {
-        $thread->bump();
+        $thread->bump($conf);
     }
 
-    // save post to data base.
-    $POSTREPO->createPost($conf, $post);
-    $THREADREPO->updateThread($conf, $thread);
+    registerNewData($board->getId(), $thread, $post);
 
-    // fill in missing data we could not have known untill after comiting to repo.
-    $post->setThreadID($thread->getThreadID());
-    $POSTREPO->updatePost($conf, $post);
-
-    $threadDir = BASEDIR . "/threads/" . $thread->getThreadID();
-    $post->moveFilesToDir($threadDir);
-    $post->addFilesToRepo();
+    $board->prune();
 
     return $post;
 }
 function userPostNewThread($board)
 {
     $conf = $board->getConf();
-    global $POSTREPO;
-    global $THREADREPO;
-    global $BANREPO;
 
-    if ($BANREPO->isIpBanned($board->getBoardID(), $_SERVER['REMOTE_ADDR'])) {
-        drawErrorPageAndDie("you are banned");
-    }
     // make a new thread
     $thread = new threadClass($conf, time());
 
     // create post with thread
-    $post = genUserPostFromRequest($conf, $thread, true);
+    $post = genUserPostFromRequest($conf, $board->getId(), true);
 
-    // save post and thread to data base.
-    $POSTREPO->createPost($conf, $post);
-    $THREADREPO->createThread($conf, $thread, $post);
+    registerNewData($board->getId(), $thread, $post);
 
-    // fill in missing data we could not have known untill after comiting to repo.
-    $post->setThreadID($thread->getThreadID());
-    $POSTREPO->updatePost($conf, $post);
-
-    $threadDir = BASEDIR . "/threads/" . $thread->getThreadID();
-    mkdir($threadDir);
-    $post->moveFilesToDir($threadDir);
-    $post->addFilesToRepo();
     $board->prune();
 
     return $thread;
@@ -269,19 +285,20 @@ function userDeletedPost($board, $post, $password)
         $password = $_COOKIE['password'];
     }
     // the passwords dont match and user dose not have power.
-    if ($password != $post->getPassword() && !$AUTH->isAuth($board->getBoardID())) {
+    if ($password != $post->getPassword() && !$AUTH->isAuth($board->getId())) {
         return;
     }
-    if ($AUTH->isAuth($board->getBoardID())) {
+    if ($AUTH->isAuth($board->getId())) {
         logAudit($board, $AUTH->getName() . " has deleted post " . $post->getPostID());
     }
-    if (isset($_POST['fileOnly'])) {
-        foreach ($post->getFiles() as $file) {
-            deleteFile($file);
+    /*    if (isset($_POST['fileOnly'])) {
+            foreach ($post->getFiles() as $file) {
+                deleteFile($file);
+            }
+        } else {
+            deletePost($post);
         }
-    } else {
-        deletePost($post);
-    }
+    */
 }
 
 /*-------------------------------------------------------MAIN ENTRY-------------------------------------------------------*/
@@ -359,7 +376,7 @@ if (isset($_GET['thread'])) {
                 if (!is_numeric($postId)) {
                     continue;
                 }
-                $post = $POSTREPO->loadPostByID($board->getConf(), $postId);
+                $post = $POSTREPO->loadPostByID($board->getId(), $postId);
                 userDeletedPost($board, $post, $_POST['password']);
             }
             redirectToBoard($board);

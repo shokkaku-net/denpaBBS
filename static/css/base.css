@@ -40,6 +40,10 @@
     display: flex;
     justify-content: center;
 }
+/* code above b0rks inline ancors when trying to center */
+.footer a {
+    display:contents;
+}
 
 .subform {
     display: block;

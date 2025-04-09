@@ -48,7 +48,7 @@ function nameIDToBoardID($nameID)
 {
     $repo = BoardRepoClass::getInstance();
     $board = $repo->loadBoardByNameID($nameID);
-    return $board ? $board->getBoardID() : '';
+    return $board ? $board->getId() : '';
 }
 
 function boardIDToName(int $boardID): ?string
@@ -161,7 +161,7 @@ function redirectToThread($thread)
 }
 function redirectToBoard($board)
 {
-    $name = boardIDToName($board->getBoardID());
+    $name = boardIDToName($board->getId());
     $url = WEBPATH . "$name";
 
     header("Location: $url");
@@ -169,7 +169,7 @@ function redirectToBoard($board)
 }
 function redirectToCatalog($board, $sort, $keyword, $case)
 {
-    $name = boardIDToName($board->getBoardID());
+    $name = boardIDToName($board->getId());
     $url = WEBPATH . "$name/catalog/";
 
     $queryParams = http_build_query(['sort' => $sort, 'keyword' => $keyword, 'case' => $case]);
@@ -180,7 +180,7 @@ function redirectToCatalog($board, $sort, $keyword, $case)
 }
 function redirectToAdmin($board)
 {
-    $name = boardIDToName($board->getBoardID());
+    $name = boardIDToName($board->getId());
     $url = WEBPATH . "$name/admin";
 
     header("Location: $url");

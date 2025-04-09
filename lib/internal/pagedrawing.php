@@ -5,7 +5,7 @@ use boardClass;
 
 function makeBoardData(boardClass $board)
 {
-    $nameID = $board->getBoardNameID();
+    $nameID = $board->getNameID();
     $data = [];
 
     $data['boardbuttons'] = [

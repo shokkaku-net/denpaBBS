@@ -47,7 +47,7 @@ return [
     'IMAGE_EXTENTIONS' => ["png", "jpg", "jpeg", "webp", "gif", "tiff", "svg"],
     'VIDEO_EXTENTIONS' => ["mp4", "webm", "avi", "mov", "mkv"],
     'AUDIO_EXTENTIONS' => ["mp3", "wav", "flac", "ogg"],
-
+    'MAX_TOTAL_FILE_SIZES' => 10 * 1024 * 1024, # max total size10 MB
     /*
      * its best to keep logs just outside of the webroot.
      * it will create a dir called bbsLog in the dir below and store its logs there.

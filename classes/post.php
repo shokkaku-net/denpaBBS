@@ -8,6 +8,8 @@ require_once __DIR__ . '/repos/repoFile.php';
 class PostDataClass
 {
     private int $postID;//postID 
+    private int $boardID;
+    private int $uid;
     private int $threadID;
     private array $files = [];//file objects
     private string $password;//post password
@@ -17,14 +19,14 @@ class PostDataClass
     private string $comment;//comment
     private int $unixTime;//time posted
     private string $IP;//poster's ip
-    private string $special;//special things like. auto sage, locked, animated gif, etc. split by a _thing_
-    private $config;
+    private string $special;//special things like. auto sage, locked, animated gif, etc. used by moduels.
+    private $board;
     private $isSaging = false;
 
     private $fileRepo;
     private $isFilesFullyLoaded;
     public function __construct(
-        array $config,
+        int $boardID,
         string $name,
         string $email,
         string $subject,
@@ -34,10 +36,11 @@ class PostDataClass
         string $IP,
         int $threadID = -1,
         int $postID = -1,
-        string $special = ''
+        string $special = '',
+        int $uid = -1,
     ) {
 
-        $this->config = $config;
+        $this->boardID = $boardID;
         $this->name = $name;
         $this->email = $email;
         $this->subject = $subject;
@@ -47,6 +50,7 @@ class PostDataClass
         $this->unixTime = $unixTime;
         $this->IP = $IP;
         $this->postID = $postID;
+        $this->uid = $uid;
         $this->threadID = $threadID;
         $this->special = $special;
         $this->fileRepo = FileRepoClass::getInstance();
@@ -54,7 +58,8 @@ class PostDataClass
     }
     public function __toString()
     {
-        return "BoardID: {$this->config['boardID']}\n" .
+        return
+            "BoardID: {$this->config['boardID']}\n" .
             "Name: {$this->name}\n" .
             "Email: {$this->email}\n" .
             "Subject: {$this->subject}\n" .
@@ -62,11 +67,12 @@ class PostDataClass
             "Password: {$this->password}\n" .
             "Unix Time: {$this->unixTime}\n" .
             "IP Address: {$this->IP}\n" .
+            "Post UID: {$this->uid}\n" .
             "Post ID: {$this->postID}\n" .
             "Thread ID: {$this->threadID}\n" .
             "Special Info: {$this->special}";
     }
-    public function validate()
+    public function validate($conf)
     {
         if (mb_strlen($this->name, 'UTF-8') > MAX_INPUT_LENGTH) {
             drawErrorPageAndDie("your post's name is invalid. max size: " . MAX_INPUT_LENGTH);
@@ -78,8 +84,8 @@ class PostDataClass
         if (mb_strlen($this->subject, 'UTF-8') > MAX_INPUT_LENGTH) {
             drawErrorPageAndDie("your post's subject is invalid. max size: " . MAX_INPUT_LENGTH);
         }
-        if (mb_strlen($this->comment, 'UTF-8') > $this->config['maxCommentSize']) {
-            drawErrorPageAndDie("your post's comment is invalid. max size: " . $this->config['maxCommentSize']);
+        if (mb_strlen($this->comment, 'UTF-8') > $conf['maxCommentSize']) {
+            drawErrorPageAndDie("your post's comment is invalid. max size: " . $conf['maxCommentSize']);
         }
         if (mb_strlen($this->password, 'UTF-8') > MAX_INPUT_LENGTH_PASSWORD) {
             drawErrorPageAndDie("your post's password is invalid. max size: " . MAX_INPUT_LENGTH_PASSWORD);
@@ -195,6 +201,10 @@ class PostDataClass
         }
     }
 
+    public function setFiles($files)
+    {
+        $this->files = $files;
+    }
     public function addFile(FileDataClass $file)
     {
         $this->files[] = $file;
@@ -236,10 +246,7 @@ class PostDataClass
     {
         return $this->threadID;
     }
-    public function getBoardID()
-    {
-        return $this->config['boardID'];
-    }
+
     public function getName()
     {
         return $this->name;
@@ -293,11 +300,19 @@ class PostDataClass
     {
         return $this->special;
     }
-    public function getConf()
-    {
-        return $this->config;
-    }
 
+    public function getUID()
+    {
+        return $this->uid;
+    }
+    public function setUID(int $uid)
+    {
+        $this->uid = $uid;
+    }
+    public function getBoardId()
+    {
+        return $this->boardID;
+    }
 
     public function setPostID($id)
     {
@@ -369,22 +384,26 @@ class PostDataClass
 
         return null;
     }
-    public function getDrawData($opID = -1)
+    public function getDrawData($includeFiles = true, $opID = -1)
     {
         $data = [
-            'id' => $this->getPostID(),
-            'subject' => $this->getSubject(),
-            'name' => $this->getName(),
-            'time' => date('Y-m-d H:i:s', $this->getUnixTime()),
-            'comment' => $this->getComment(),
-            'email' => $this->getEmail(),
+            'id' => $this->postID,
+            'subject' => $this->subject,
+            'name' => $this->name,
+            'time' => date('Y-m-d H:i:s', $this->unixTime),
+            'comment' => $this->comment,
+            'email' => $this->email,
         ];
         if ($this->postID == $opID) {
             $data['isOp'] = true;
         }
-        $files = $this->getFiles();
-        foreach ($files as $file) {
-            $data['files'][] = $file->getDrawData();
+        if ($includeFiles) {
+            /*
+            $files = $this->getFiles();
+            foreach ($files as $file) {
+                $data['files'][] = $file->getDrawData();
+            }
+            */
         }
         return $data;
     }

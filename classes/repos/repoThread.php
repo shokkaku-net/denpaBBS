@@ -1,13 +1,12 @@
 <?php
 require_once __DIR__ . '/DBConnection.php';
-require_once __DIR__ . '/interfaces.php';
 require_once __DIR__ . '/../thread.php';
 require_once __DIR__ . '/../../lib/common.php';
 require_once __DIR__ . '/repoPost.php';
 
 
 
-class ThreadRepoClass implements ThreadRepositoryInterface
+class ThreadRepoClass
 {
     private $db;
     private static $instance = null;
@@ -32,7 +31,7 @@ class ThreadRepoClass implements ThreadRepositoryInterface
         }
         return self::$instance;
     }
-    public function createThread($boardConf, $thread, $post)
+    public function createThread($boardID, $thread, $post)
     {
         try {
             if ($post->getPostID() == -1) {
@@ -46,7 +45,7 @@ class ThreadRepoClass implements ThreadRepositoryInterface
 
             //construct querry
             $stmt = $this->db->prepare("INSERT INTO threads (boardID, lastTimePosted, opPostID) VALUES (?, ?, ?)");
-            $stmt->bind_param("iii", $boardConf['boardID'], $bump, $postID);
+            $stmt->bind_param("iii", $boardID, $bump, $postID);
 
             // run qerrry
             $success = $stmt->execute();
@@ -66,14 +65,14 @@ class ThreadRepoClass implements ThreadRepositoryInterface
             return false;
         }
     }
-    public function loadThreadByID($boardConf, $threadID)
+    public function loadThreadByID($boardID, $threadID)
     {
         $stmt = $this->db->prepare("SELECT * FROM threads WHERE boardID = ? AND threadID = ?");
-        $stmt->bind_param("ii", $boardConf['boardID'], $threadID);
+        $stmt->bind_param("ii", $boardID, $threadID);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
-            $thread = new threadClass($boardConf, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
+            $thread = new threadClass($boardID, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
             $stmt->close();
             return $thread;
         } else {
@@ -81,42 +80,42 @@ class ThreadRepoClass implements ThreadRepositoryInterface
             return null;
         }
     }
-    public function loadThreads($boardConf)
+    public function loadThreads($boardID)
     {
         $threads = [];
         $stmt = $this->db->prepare("SELECT * FROM threads WHERE boardID = ?");
-        $stmt->bind_param("i", $boardConf['boardID']);
+        $stmt->bind_param("i", $boardID);
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-            $threads[] = new threadClass($boardConf, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
+            $threads[] = new threadClass($boardID, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
         }
         $stmt->close();
         return $threads;
     }
-    public function loadThreadsByPage($boardConf, $page = 1)
+    public function loadThreadsByPage($boardID, $threadsPerPage, $page = 1)
     {
         $page = $page - 1;
         $threads = [];
-        $offset = $page * $boardConf['threadsPerPage'];
+        $offset = $page * $threadsPerPage;
 
         $stmt = $this->db->prepare("SELECT * FROM threads WHERE boardID = ? ORDER BY lastTimePosted DESC LIMIT ? OFFSET ?");
-        $stmt->bind_param("iii", $boardConf['boardID'], $boardConf['threadsPerPage'], $offset);
+        $stmt->bind_param("iii", $boardID, $threadsPerPage, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
 
         while ($row = $result->fetch_assoc()) {
-            $threads[] = new threadClass($boardConf, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
+            $threads[] = new threadClass($boardID, $row['lastTimePosted'], $row['threadID'], $row['opPostID'], $row['status']);
         }
 
         $stmt->close();
         return $threads;
     }
-    public function getThreadCount($boardConf)
+    public function getThreadCount($boardID)
     {
         $count = 0;
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM threads WHERE boardID = ?");
-        $stmt->bind_param("i", $boardConf['boardID']);
+        $stmt->bind_param("i", $boardID);
         $stmt->execute();
         $stmt->bind_result($count);
         $stmt->fetch();
@@ -124,20 +123,20 @@ class ThreadRepoClass implements ThreadRepositoryInterface
 
         return $count;
     }
-    public function updateThread($boardConf, $thread)
+    public function updateThread($boardID, threadClass $thread)
     {
 
         $bump = $thread->getLastBumpTime();
         $postID = $thread->getOPPostID();
-        $id = $thread->getThreadID();
+        $id = $thread->getId();
         $postCount = $thread->getPostCount();
         $stmt = $this->db->prepare("UPDATE threads SET lastTimePosted = ?, opPostID = ? WHERE boardID = ? AND threadID = ?");
-        $stmt->bind_param("iiii", $bump, $postID, $boardConf['boardID'], $id);
+        $stmt->bind_param("iiii", $bump, $postID, $boardID, $id);
         $success = $stmt->execute();
         $stmt->close();
         return $success;
     }
-    public function deleteThreadByID($boardConf, $threadIDs)
+    public function deleteThreadByID($boardID, $threadIDs)
     {
         if (!is_array($threadIDs)) {
             $threadIDs = [$threadIDs]; // Convert to array if single ID is passed
@@ -147,18 +146,18 @@ class ThreadRepoClass implements ThreadRepositoryInterface
         $query = "DELETE FROM threads WHERE boardID = ? AND threadID IN ($placeholders)";
         $stmt = $this->db->prepare($query);
         $types = str_repeat('i', count($threadIDs) + 1);
-        $params = array_merge([$boardConf['boardID']], $threadIDs);
+        $params = array_merge($boardID, $threadIDs);
         $stmt->bind_param($types, ...$params);
         $success = $stmt->execute();
         $stmt->close();
         return $success;
     }
 
-    public function fetchThreadIDsForDeletion($boardConf, $offset)
+    public function fetchThreadIDsForDeletion($boardID, $offset)
     {
         $sql = "SELECT threadID FROM threads WHERE boardID = ? ORDER BY lastTimePosted DESC LIMIT 1000 OFFSET " . intval($offset);
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param('i', $boardConf['boardID']);
+        $stmt->bind_param('i', $boardID);
         $stmt->execute();
 
         $result = $stmt->get_result();
@@ -168,7 +167,7 @@ class ThreadRepoClass implements ThreadRepositoryInterface
         return $threadIds;
     }
 
-    public function archiveOldThreads($boardConf, $maxActiveThreads)
+    public function archiveOldThreads($boardID, $maxActiveThreads)
     {
         // SQL query to mark threads as archived beyond the specified number of active threads
         $sql = "UPDATE threads SET status = 'archived' WHERE boardID = ? AND threadID NOT IN (
@@ -181,7 +180,7 @@ class ThreadRepoClass implements ThreadRepositoryInterface
         )";
         $stmt = $this->db->prepare($sql);
 
-        $stmt->bind_param('iii', $boardConf['boardID'], $boardConf['boardID'], $maxActiveThreads);
+        $stmt->bind_param('iii', $boardID, $boardID, $maxActiveThreads);
         $success = $stmt->execute();
         $stmt->close();
 

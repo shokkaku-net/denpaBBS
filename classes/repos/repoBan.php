@@ -1,6 +1,5 @@
 <?php
 require_once  __DIR__ .'/DBConnection.php';
-require_once  __DIR__ .'/interfaces.php';
 require_once __DIR__ .'/../../lib/common.php';
 
 class BanRepoClass{

@@ -222,7 +222,7 @@ class htmlclass
             <td class="accent"><label for="password">Password</label></td>
             <td><input type="password" id="password" name="password" maxlength="' . MAX_INPUT_LENGTH_PASSWORD . '"></td>
         </tr>';
-        if ($AUTH->isAuth($board->getBoardID()) && !$AUTH->isJanitor($board->getBoardID())) {
+        if ($AUTH->isAuth($board->getId()) && !$AUTH->isJanitor($board->getId())) {
             $this->html .= '
             <tr>
                 <td class="accent"><label for="embedingHTML">embeding HTML</label></td>
@@ -280,7 +280,7 @@ class htmlclass
         <center id="mainForm">
             <form id="formThread" action="' . WEBPATH . $this->conf['boardNameID'] . '" method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="postNewThread">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">';
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">';
         $this->drawMainFormBody("New Thread", true);
         $this->html .= '
             </form>
@@ -298,7 +298,7 @@ class htmlclass
             <form id="formPost" action="' . WEBPATH . $this->conf['boardNameID'] . '" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="action" value="postToThread">
             <input type="hidden" name="threadID" value="' . $threadID . '">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">';
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">';
         $this->drawMainFormBody("New Post");
         $this->html .= '
             </form>
@@ -526,7 +526,7 @@ class htmlclass
         global $THREADREPO;
 
         $maxThreadsPerPage = $this->conf['threadsPerPage'];
-        $threadCount = $THREADREPO->getThreadCount($this->conf);
+        $threadCount = $THREADREPO->getThreadCount($this->conf['boardID']);
 
         if ($threadCount >= $this->conf['maxActiveThreads']) {
             $threadCount = $this->conf['maxActiveThreads'];
@@ -582,7 +582,7 @@ class htmlclass
         $this->html .= '
             ACTIONS :&nbsp;';
         $this->drawLogOutForm();
-        $this->html .= '[<a href="' . WEBPATH . boardIDToName($this->board->getBoardID()) . '/admin/postListing" >admin post view</a>]
+        $this->html .= '[<a href="' . WEBPATH . boardIDToName($this->board->getId()) . '/admin/postListing" >admin post view</a>]
         </div>';
     }
     private function drawPostIP($post)
@@ -640,7 +640,7 @@ class htmlclass
         <center class="loginForm">
         <form method="POST" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="login">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             <input type="password" id="password" name="password" required>
             <button type="submit">Login</button>
         </form>
@@ -652,7 +652,7 @@ class htmlclass
         <!--drawLogOutForm()-->
         <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="logout">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             [<button type="submit" class="hyperButton">Logout</button>]
         </form>';
     }
@@ -666,7 +666,7 @@ class htmlclass
         <center class="adminForm">
         <h3><b>Create Ban Catagories</b></h3>
         <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             <input type="hidden" name="action" value="createCategory">
             <table>
             <tr>
@@ -694,7 +694,7 @@ class htmlclass
         <h3><b>Create board form</b></h3>
         <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '/admin" enctype="multipart/form-data">
             <input type="hidden" name="action" value="createBoard">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             <table>
             <tr>
                 <td class="accent"><label for="boardURLName">BOARD URL NAME</label></td>
@@ -721,7 +721,7 @@ class htmlclass
     private function drawFormDeleteBoard()
     {
         $boardConfs = getAllBoardConfs(); // Now from DB
-        $currentBoardID = $this->board->getBoardID();
+        $currentBoardID = $this->board->getId();
 
         $this->html .= '
         <!--drawFormDeleteBoard()-->
@@ -762,7 +762,7 @@ class htmlclass
         <div class=banForm>
         <form method="post" action="' . WEBPATH . 'admin.php" enctype="multipart/form-data">
             <input type="hidden" name="action" value="banPost">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             <input type="hidden" name="postID" value="' . $post->getPostID() . '">';
         $this->html .= '
             <table>
@@ -906,7 +906,7 @@ class htmlclass
         $this->html .= '<!--drawFormCatalog()-->
         <form method="post" action="' . WEBPATH . $this->conf['boardNameID'] . '">
             <input type="hidden" name="action" value="catalog">
-            <input type="hidden" name="boardID" value="' . $this->board->getBoardID() . '">
+            <input type="hidden" name="boardID" value="' . $this->board->getId() . '">
             <span>Sort by:</span>
             <select name="sort" style="display: inline-block">';
         if ($sort == 'dateCreated') {
@@ -971,7 +971,7 @@ class htmlclass
 
     public function drawFormBoardConfigEditor()
     {
-        $boardNameID = htmlspecialchars($this->board->getBoardNameID());
+        $boardNameID = htmlspecialchars($this->board->getNameID());
 
         $this->html .= <<<HTML
         <!-- drawFormBoardConfigEditor() -->
@@ -1018,7 +1018,7 @@ class htmlclass
         $this->drawHead();
         $this->html .= '<body><div id="top"></div>';
         $this->drawNavBar();
-        if ($AUTH->isAuth($board->getBoardID())) {
+        if ($AUTH->isAuth($board->getId())) {
             $this->drawAdminBar();
         }
         $this->drawBoardTitle();
@@ -1067,7 +1067,7 @@ class htmlclass
         }
 
         // as the threads start at 0 but drawing starts at page 1
-        $threads = $THREADREPO->loadThreadsByPage($this->conf, $pageNumber - 1);
+        $threads = $THREADREPO->loadThreadsByPage($this->conf['boardID'], $pageNumber - 1);
 
         $drawThreadListingWraped = function ($threads) {
             $this->postManagerWraper([$this, 'drawThreadListing'], [$threads]);
@@ -1166,7 +1166,7 @@ class htmlclass
 
         $functions = [];
 
-        $id = $this->board->getBoardID();
+        $id = $this->board->getId();
         $isAdmin = $AUTH->isAdmin($id);
         $isMod = $AUTH->isModerator($id);
         $isSuper = $AUTH->isSuper();

@@ -97,6 +97,4 @@ return [
     'allowModsToSeeIPs' => false,
     'banMessage' => "(USER WAS BANNED FOR THIS POST)",
     'defaultBanTime' => "1d",
-
-    'drawFooter' => true,
 ];

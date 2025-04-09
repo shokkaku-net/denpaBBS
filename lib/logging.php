@@ -40,13 +40,13 @@ function logError($board, $errorMessage)
 {
     global $errorLogPath;
     $logs = fopen($errorLogPath, 'a');
-    fwrite($logs, "[" . date('Y-m-d H:i:s', time()) . "] board: " . boardIDToName($board->getBoardID()) . " boardID: " . $board->getBoardID() . " >> " . $errorMessage . "\n");
+    fwrite($logs, "[" . date('Y-m-d H:i:s', time()) . "] board: " . boardIDToName($board->getId()) . " boardID: " . $board->getId() . " >> " . $errorMessage . "\n");
     fclose($logs);
 }
 function logAudit($board, $auditMessage)
 {
     global $auditLogPath;
     $logs = fopen($auditLogPath, 'a');
-    fwrite($logs, "[" . date('Y-m-d H:i:s', time()) . "] board: " . boardIDToName($board->getBoardID()) . " boardID: " . $board->getBoardID() . " >> " . $auditMessage . "\n");
+    fwrite($logs, "[" . date('Y-m-d H:i:s', time()) . "] board: " . boardIDToName($board->getId()) . " boardID: " . $board->getId() . " >> " . $auditMessage . "\n");
     fclose($logs);
 }

@@ -12,26 +12,28 @@ class threadClass
     private $status = 'active';
     private $lastPosts = []; //flipped array. last post is first index
     private $threadID;
+    private $boardID;
+    private $board;
     private $lastBumpTime;
     private $OPPostID;
     private $postCount;
     private $isPostsFullyLoaded = false;
     private $isPostCountFullyLoaded = false;
     private $postRepo;
-    public function __construct($conf, $lastBumpTime, $threadID = -1, $OPPostID = -1, $status = 'active')
+    public function __construct($boardID, $lastBumpTime, $threadID = -1, $OPPostID = -1, $status = 'active')
     {
-        $this->conf = $conf;
+        $this->boardID = $boardID;
         $this->threadID = $threadID;
         $this->lastBumpTime = $lastBumpTime;
         $this->OPPostID = $OPPostID;
         $this->status = $status;
         $this->postRepo = PostRepoClass::getInstance();
     }
-    public function bump()
+    public function bump($conf)
     {
-        if ($this->getPostCount() >= $this->conf['postUntilCantBump']) {
+        if ($this->getPostCount() >= $conf['postUntilCantBump']) {
             return;
-        } elseif ($this->getOPPost()->getUnixTime() - time() > $this->conf['timeUntilCantBump']) {
+        } elseif ($this->getOPPost()->getUnixTime() - time() > $conf['timeUntilCantBump']) {
             return;
         } else {
             $this->lastBumpTime = time();
@@ -41,7 +43,7 @@ class threadClass
     {
         return $this->lastBumpTime;
     }
-    public function getThreadID()
+    public function getId()
     {
         return $this->threadID;
     }
@@ -51,16 +53,22 @@ class threadClass
     }
     public function getBoardID()
     {
-        return $this->conf['boardID'];
+        if (!isset($this->board)) {
+            $this->board = getBoardByID($this->boardID);
+        }
+        return $this->board->getNameID();
     }
     public function getBoardNameID()
     {
-        return $this->conf['boardNameID'];
+        if (!isset($this->board)) {
+            $this->board = getBoardByID($this->boardID);
+        }
+        return $this->board->getNameID();
     }
     public function getPostCount()
     {
         if ($this->isPostCountFullyLoaded != true) {
-            $this->postCount = $this->postRepo->getPostCount($this->conf, $this->threadID);
+            $this->postCount = $this->postRepo->getPostCount($this->boardID, $this->threadID);
             $this->isPostCountFullyLoaded = true;
         }
         return $this->postCount;
@@ -69,15 +77,11 @@ class threadClass
     {
         return $this->OPPostID;
     }
-    public function getConf()
-    {
-        return $this->conf;
-    }
     /* build postObj from postrequest -> validate postObj -> save postObj to database */ // -> redraw pages -> redirect user */
     public function getPosts()
     {
         if ($this->isPostsFullyLoaded != true) {
-            $this->posts = $this->postRepo->loadPostsByThreadID($this->conf, $this->threadID);
+            $this->posts = $this->postRepo->loadPostsByThreadID($this->boardID, $this->threadID);
             $this->isPostsFullyLoaded = true;
         }
         return $this->posts;
@@ -85,7 +89,7 @@ class threadClass
     public function getPostByID($postID)
     {
         if (!$this->isPostsFullyLoaded && !isset($this->posts[$postID])) {
-            $this->posts[$postID] = $this->postRepo->loadPostByThreadID($this->conf, $this->threadID, $postID);
+            $this->posts[$postID] = $this->postRepo->loadPostByThreadID($this->boardID, $this->threadID, $postID);
         }
         return $this->posts[$postID];
     }
@@ -96,7 +100,7 @@ class threadClass
     public function getLastNPost($num)
     {
         if ($this->isPostsFullyLoaded != true || !count($this->lastPosts) >= $num) {
-            $this->lastPosts = $this->postRepo->loadNPostByThreadID($this->conf, $this->threadID, $num);
+            $this->lastPosts = $this->postRepo->loadNPostByThreadID($this->boardID, $this->threadID, $num);
         }
         return array_reverse($this->lastPosts);
     }
@@ -129,7 +133,7 @@ class threadClass
         }
         $op = $this->getOPPost();
 
-        $pdata = $op->getDrawData(true);
+        $pdata = $op->getDrawData(true, $op->getPostID());
         $pdata['postLocation'] = WEBPATH . $this->getBoardNameID() . "/thread/" . $this->threadID;
         $data['posts'][] = $pdata;
 

@@ -1,5 +1,7 @@
 <?php
 
+define('BASEDIR', __DIR__ . '/');
+
 require_once __DIR__ . '/lib/common.php';
 
 if (file_exists(__DIR__ . "/.install_bypass")) {
@@ -74,80 +76,69 @@ function createDB($conn)
 		",
 
 		"CREATE TABLE IF NOT EXISTS posts (
-				UID INT AUTO_INCREMENT PRIMARY KEY,
-				postID INT NOT NULL,
-				boardID INT NOT NULL,
-				threadID INT NULL,
-				password VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-				name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-				email VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-				subject VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-				comment TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-				ip VARCHAR(45) NOT NULL,
-				postTime BIGINT NOT NULL,
-				special TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-				FOREIGN KEY (boardID) REFERENCES boards(boardID) ON DELETE CASCADE ON UPDATE CASCADE
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+			UID INT AUTO_INCREMENT PRIMARY KEY,
+			postID INT NOT NULL,
+			boardID INT NOT NULL,
+			threadID INT NULL,
+			password VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+			name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+			email VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+			subject VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+			comment TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+			ip VARCHAR(45) NOT NULL,
+			postTime BIGINT NOT NULL,
+			special TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+			FOREIGN KEY (boardID) REFERENCES boards(boardID) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
 		"CREATE TABLE IF NOT EXISTS threads (
-				threadID INT AUTO_INCREMENT PRIMARY KEY,
-				boardID INT NOT NULL,
-				lastTimePosted BIGINT NOT NULL,
-				opPostID INT,
-                status VARCHAR(10) DEFAULT 'active',
-				FOREIGN KEY (boardID) REFERENCES boards(boardID) ON DELETE CASCADE ON UPDATE CASCADE
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+			threadID INT AUTO_INCREMENT PRIMARY KEY,
+			boardID INT NOT NULL,
+			lastTimePosted BIGINT NOT NULL,
+			opPostID INT,
+			status VARCHAR(10) DEFAULT 'active',
+			FOREIGN KEY (boardID) REFERENCES boards(boardID) ON DELETE CASCADE ON UPDATE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+
+		"CREATE TABLE IF NOT EXISTS media (
+			mediaID INT AUTO_INCREMENT PRIMARY KEY,
+
+			md5 CHAR(32) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+			storedFileName VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+			mime VARCHAR(64) NOT NULL,                         -- full MIME like 'image/png'
+			size INT NOT NULL,
+			sizeFormated VARCHAR (255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+			hasThumbnail BOOLEAN NOT NULL DEFAULT FALSE,
+			thumbnailExt VARCHAR(8) DEFAULT NULL,
+			status ENUM('ok', 'missing', 'error') NOT NULL DEFAULT 'ok',
+
+			UNIQUE KEY (md5)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
 
 		"CREATE TABLE IF NOT EXISTS files (
-                fileID INT AUTO_INCREMENT PRIMARY KEY,
-                postID INT NOT NULL,
-                threadID INT NOT NULL,
-                boardID INT NOT NULL,
-                fileName VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                filePath VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                md5 CHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-                FOREIGN KEY (threadID) REFERENCES threads(threadID) ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (boardID) REFERENCES boards(boardID) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+			fileID INT AUTO_INCREMENT PRIMARY KEY,
+			postUID INT NOT NULL,
+			mediaID INT NOT NULL,
+			fileNaem VARCHAR(255) NOT NULL,
+			FOREIGN KEY (postUID) REFERENCES posts(UID) ON DELETE CASCADE ON UPDATE CASCADE,
+			FOREIGN KEY (mediaID) REFERENCES media(mediaID) ON DELETE CASCADE ON UPDATE CASCADE,
+			UNIQUE KEY (postUID, mediaID)  -- prevent same file twice on same post
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
 
 		"CREATE TABLE IF NOT EXISTS ipBans (
-                banID INT AUTO_INCREMENT PRIMARY KEY,
-                ipAddress VARCHAR(45),
-                boardID INT NULL,
-                reason TEXT,
-                category VARCHAR(20),
-                isPublic BOOLEAN DEFAULT 0,
-                isGlobal BOOLEAN DEFAULT 0,
-                createdAt BIGINT NOT NULL,
-                expiresAt BIGINT NULL,
-                INDEX idx_ip (ipAddress),
-                INDEX idx_board (boardID)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+			banID INT AUTO_INCREMENT PRIMARY KEY,
+			ipAddress VARCHAR(45),
+			boardID INT NULL,
+			reason TEXT,
+			category VARCHAR(20),
+			isPublic BOOLEAN DEFAULT 0,
+			isGlobal BOOLEAN DEFAULT 0,
+			createdAt BIGINT NOT NULL,
+			expiresAt BIGINT NULL,
+			INDEX idx_ip (ipAddress),
+			INDEX idx_board (boardID)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
-		"CREATE TABLE IF NOT EXISTS fileBans (
-                banID INT AUTO_INCREMENT PRIMARY KEY,
-                fileHash VARCHAR(64),
-                isPerceptual BOOLEAN,
-                reason TEXT,
-                category VARCHAR(20),
-                boardID INT NULL,
-                isPublic BOOLEAN DEFAULT 0,
-                isGlobal BOOLEAN DEFAULT 0,
-                createdAt BIGINT NOT NULL,
-                INDEX idx_file_hash (fileHash)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
-
-		"CREATE TABLE IF NOT EXISTS stringBans (
-                banID INT AUTO_INCREMENT PRIMARY KEY,
-                bannedString TEXT,
-                reason TEXT,
-                boardID INT NULL,
-                category VARCHAR(20),
-                isPublic BOOLEAN DEFAULT 0,
-                isGlobal BOOLEAN DEFAULT 0,
-                createdAt BIGINT NOT NULL,
-                INDEX idx_banned_string (bannedString(255))
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
 	];
 	// Execute each SQL command
 	foreach ($sqlCommands as $sql) {
@@ -202,15 +193,26 @@ function updateConf()
 
 
 
-	// set full path to ./threads
-	$threadsDir = realpath(__DIR__ . '/threads');
-	if (!$threadsDir) {
-		$threadsDir = __DIR__ . '/threads';
-		if (!is_dir($threadsDir)) {
-			mkdir($threadsDir, 0755, true);
+	// set full path to ./up/files
+	$upFilesDir = realpath(__DIR__ . '/up/files');
+	if (!$upFilesDir) {
+		$upFilesDir = __DIR__ . '/threads';
+		if (!is_dir($upFilesDir)) {
+			mkdir($upFilesDir, 0755, true);
 		}
 	}
-	$conf['threadsDir'] = rtrim($threadsDir, '/') . '/';
+	$conf['filesDir'] = rtrim($upFilesDir, '/') . '/';
+
+	// set full path to ./up/thumbs
+	$upThumbsDir = realpath(__DIR__ . '/up/thumbs');
+	if (!$upThumbsDir) {
+		$upThumbsDir = __DIR__ . '/thumbnails';
+		if (!is_dir($upThumbsDir)) {
+			mkdir($upThumbsDir, 0755, true);
+		}
+	}
+	$conf['thumbsDir'] = rtrim($upThumbsDir, '/') . '/';
+
 
 
 	// attempt to create and assign logDir
@@ -278,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 
 		$thread = new threadClass($board->getConf(), $time);
 		$post = new PostDataClass(
-			$board->getConf(),
+			$board->getId(),
 			"System",
 			"",
 			"HelloWorld!",
@@ -289,8 +291,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 			1
 		);
 
-		$POSTREPO->createPost($board->getConf(), $post);
-		$THREADREPO->createThread($board->getConf(), $thread, $post);
+		$POSTREPO->createPost($board->getId(), $post);
+		$THREADREPO->createThread($board->getId(), $thread, $post);
 
 		// create the custom route file 
 		$customRoutePath = __DIR__ . '/customRoute.php';

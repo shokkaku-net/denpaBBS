@@ -33,7 +33,7 @@ class boardClass
 	public function getThreads()
 	{
 		if ($this->threadsFullyLoaded === false) {
-			$this->threads = $this->repo->loadThreads($this->conf);
+			$this->threads = $this->repo->loadThreads($this->boardID);
 			$this->threadsFullyLoaded = true;
 		}
 		return $this->threads;
@@ -42,13 +42,13 @@ class boardClass
 	public function getThreadByID($threadID)
 	{
 		if (!isset($this->threads[$threadID])) {
-			$this->threads[$threadID] = $this->repo->loadThreadByID($this->conf, $threadID);
+			$this->threads[$threadID] = $this->repo->loadThreadByID($this->boardID, $threadID);
 		}
 		return $this->threads[$threadID];
 	}
 
 
-	public function getBoardID(): int
+	public function getId(): int
 	{
 		return $this->boardID;
 	}
@@ -68,7 +68,7 @@ class boardClass
 		$this->lastPostID = $id;
 	}
 
-	public function getBoardNameID(): string
+	public function getNameID(): string
 	{
 		return $this->boardNameID;
 	}
@@ -92,18 +92,18 @@ class boardClass
 		$totalAllowedThreads = $maxActiveThreads + $maxArchivedThreads;
 
 		$THREADREPO = ThreadRepoClass::getInstance();
-		$count = $THREADREPO->getThreadCount($this->conf);
+		$count = $THREADREPO->getThreadCount($this->boardID);
 
 		if ($count > $totalAllowedThreads) {
-			$threadIDs = $THREADREPO->fetchThreadIDsForDeletion($this->conf, $totalAllowedThreads);
-			$THREADREPO->deleteThreadByID($this->conf, $threadIDs);
+			$threadIDs = $THREADREPO->fetchThreadIDsForDeletion($this->boardID, $totalAllowedThreads);
+			$THREADREPO->deleteThreadByID($this->boardID, $threadIDs);
 
 			foreach ($threadIDs as $threadID) {
 				deleteFilesInThreadByID($threadID);
 			}
 		}
 
-		$THREADREPO->archiveOldThreads($this->conf, $maxActiveThreads);
+		$THREADREPO->archiveOldThreads($this->boardID, $maxActiveThreads);
 	}
 	public function getDrawData()
 	{
@@ -124,7 +124,7 @@ class boardClass
 	}
 	public function getThreadsByPage($page)
 	{
-		return $this->repo->loadThreadsByPage($this->conf, $page);
+		return $this->repo->loadThreadsByPage($this->boardID, $page);
 	}
 	public function getPostPreviwCount()
 	{
@@ -134,7 +134,7 @@ class boardClass
 	{
 
 		$maxThreadsPerPage = $this->conf['threadsPerPage'];
-		$threadCount = $this->repo->getThreadCount($this->conf);
+		$threadCount = $this->repo->getThreadCount($this->boardID);
 
 		if ($threadCount >= $this->conf['maxActiveThreads']) {
 			$threadCount = $this->conf['maxActiveThreads'];
